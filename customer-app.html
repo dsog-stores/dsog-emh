@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
     <title>DSOG STORES | Premium Fashion & Lifestyle</title>
-    <meta name="theme-color" content="#1a237e">
+    <meta name="theme-color" content="#001f3f">
     <meta name="description" content="Discover premium fashion, accessories, and lifestyle products at DSOG STORES">
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
     <style>
         :root {
-            --primary: #1a237e;
-            --primary-light: #534bae;
-            --primary-dark: #000051;
-            --accent: #d4af37;
+            --primary: #001f3f;
+            --primary-light: #003366;
+            --primary-dark: #001a33;
+            --accent: #FFD700;
             --light: #f8f9fa;
             --gray: #6c757d;
             --white: #ffffff;
@@ -28,6 +28,8 @@
             --card-bg: #ffffff;
             --success: #28a745;
             --error: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
             --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
@@ -70,7 +72,7 @@
         
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             text-decoration: none;
@@ -111,6 +113,7 @@
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
+            position: relative;
         }
         
         .user-avatar {
@@ -136,6 +139,41 @@
         .user-name {
             font-weight: 500;
             font-size: 0.9rem;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            border-radius: 4px;
+            padding: 0.5rem 0;
+            min-width: 150px;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .user-profile.active .user-dropdown {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 0.7rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--light);
+        }
+        
+        .dropdown-item.signout {
+            color: var(--error);
+            border-top: 1px solid var(--border-color);
         }
         
         /* Combined Header with Carousel Background */
@@ -964,7 +1002,7 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.1);
         }
         
         textarea.form-control {
@@ -998,33 +1036,173 @@
             transform: translateY(-2px);
         }
         
-        /* Messages */
+        /* Enhanced Messages */
         .message {
-            padding: 0.8rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            font-size: 0.9rem;
+            gap: 0.8rem;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-sm);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #d4edda;
+            color: #155724;
             border-left: 4px solid var(--success);
-            display: none;
         }
         
         .error-message {
-            background: #ffebee;
-            color: #c62828;
+            background: #f8d7da;
+            color: #721c24;
             border-left: 4px solid var(--error);
-            display: none;
+        }
+        
+        .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid var(--info);
         }
         
         .message-icon {
+            font-size: 1.5rem;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        
+        .message-text {
+            font-size: 0.9rem;
+        }
+        
+        .message-close {
+            background: none;
+            border: none;
             font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        
+        .message-close:hover {
+            opacity: 1;
+        }
+        
+        /* Toast Messages */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1002;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-width: 350px;
+        }
+        
+        .toast {
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-md);
+            animation: slideInRight 0.5s ease-out;
+            transition: var(--transition);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .toast.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+        
+        .toast.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--error);
+        }
+        
+        .toast.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .toast.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid var(--info);
+        }
+        
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        
+        .toast-text {
+            font-size: 0.9rem;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        
+        .toast-close:hover {
+            opacity: 1;
         }
         
         /* Loading State */
@@ -1338,6 +1516,12 @@
                 min-width: 70px;
                 font-size: 0.85rem;
             }
+            
+            .toast-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1377,7 +1561,7 @@
             }
             
             .logo {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             .user-name {
@@ -1387,17 +1571,31 @@
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <!-- Main Header -->
     <header class="main-header">
         <div class="header-content">
             <a href="#" class="logo">DSOG<span>STORE</span></a>
             <div class="header-actions">
                 <div id="userInfo" style="display: none;">
-                    <div class="user-profile">
+                    <div class="user-profile" id="userProfile">
                         <div class="user-avatar" id="userAvatar">
                             <i class="fas fa-user"></i>
                         </div>
                         <span class="user-name" id="userName"></span>
+                        <div class="user-dropdown">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i> My Profile
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> My Orders
+                            </a>
+                            <a href="#" class="dropdown-item signout" id="signOutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Sign Out
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <button class="auth-btn" id="authBtn">
@@ -1543,18 +1741,24 @@
             <div class="form-content">
                 <div class="success-message" id="successMessage">
                     <i class="fas fa-check-circle message-icon"></i>
-                    <div>
-                        <h4>Order Submitted!</h4>
-                        <p>Thank you for your order. We'll start working on it right away.</p>
+                    <div class="message-content">
+                        <h4 class="message-title">Order Submitted Successfully!</h4>
+                        <p class="message-text">Thank you for your order. We'll start working on it right away and send you a confirmation email shortly.</p>
                     </div>
+                    <button class="message-close" id="closeSuccessMessage">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 
                 <div class="error-message" id="errorMessage">
                     <i class="fas fa-exclamation-circle message-icon"></i>
-                    <div>
-                        <h4>Error Submitting Order</h4>
-                        <p id="errorText">There was an error submitting your order.</p>
+                    <div class="message-content">
+                        <h4 class="message-title">Error Submitting Order</h4>
+                        <p class="message-text" id="errorText">There was an error submitting your order. Please try again.</p>
                     </div>
+                    <button class="message-close" id="closeErrorMessage">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 
                 <div class="order-summary">
@@ -1671,7 +1875,7 @@
             "description": "Premium Fashion & Lifestyle Store",
             "start_url": "/",
             "display": "standalone",
-            "theme_color": "#1a237e",
+            "theme_color": "#001f3f",
             "background_color": "#ffffff",
             "icons": [
                 {
@@ -1729,8 +1933,12 @@
             const closeImageModalBtn = document.getElementById('closeImageModal');
             const closeCartBtn = document.getElementById('closeCart');
             const closeCustomizationModalBtn = document.getElementById('closeCustomizationModal');
+            const closeSuccessMessage = document.getElementById('closeSuccessMessage');
+            const closeErrorMessage = document.getElementById('closeErrorMessage');
             const authBtn = document.getElementById('authBtn');
             const googleSignInBtn = document.getElementById('googleSignIn');
+            const userProfile = document.getElementById('userProfile');
+            const signOutBtn = document.getElementById('signOutBtn');
             const cartBtn = document.getElementById('cartBtn');
             const cartCount = document.getElementById('cartCount');
             const cartContent = document.getElementById('cartContent');
@@ -1758,6 +1966,7 @@
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
             const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+            const toastContainer = document.getElementById('toastContainer');
             
             // State variables
             let cartItems = JSON.parse(localStorage.getItem('dsog_cart')) || [];
@@ -1811,6 +2020,22 @@
                     initializeGoogleSignIn();
                 });
                 
+                // User profile dropdown
+                userProfile.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('active');
+                });
+                
+                // Close user dropdown when clicking elsewhere
+                document.addEventListener('click', function() {
+                    userProfile.classList.remove('active');
+                });
+                
+                signOutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    signOut();
+                });
+                
                 // Cart functionality
                 cartBtn.addEventListener('click', function() {
                     if (!currentUser) {
@@ -1826,7 +2051,7 @@
                 
                 checkoutBtn.addEventListener('click', function() {
                     if (cartItems.length === 0) {
-                        alert('Your cart is empty. Add products before checkout.');
+                        showToast('Your cart is empty. Add products before checkout.', 'warning');
                         return;
                     }
                     
@@ -1836,7 +2061,7 @@
                 
                 whatsappBtn.addEventListener('click', function() {
                     if (cartItems.length === 0) {
-                        alert('Your cart is empty. Add products before checkout.');
+                        showToast('Your cart is empty. Add products before checkout.', 'warning');
                         return;
                     }
                     
@@ -1874,6 +2099,15 @@
                     }
                 });
                 
+                // Close message buttons
+                closeSuccessMessage.addEventListener('click', function() {
+                    successMessage.style.display = 'none';
+                });
+                
+                closeErrorMessage.addEventListener('click', function() {
+                    errorMessage.style.display = 'none';
+                });
+                
                 // Search functionality
                 searchBtn.addEventListener('click', function() {
                     performSearch();
@@ -1906,7 +2140,7 @@
                     
                     // Validate required fields
                     if (!deliveryAddress) {
-                        alert('Please provide a delivery address');
+                        showToast('Please provide a delivery address', 'warning');
                         return;
                     }
                     
@@ -1978,6 +2212,53 @@
                 });
             }
             
+            // Toast message function
+            function showToast(message, type = 'info', title = '') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                let icon = 'fas fa-info-circle';
+                if (type === 'success') icon = 'fas fa-check-circle';
+                else if (type === 'error') icon = 'fas fa-exclamation-circle';
+                else if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+                
+                toast.innerHTML = `
+                    <i class="${icon} toast-icon"></i>
+                    <div class="toast-content">
+                        ${title ? `<h4 class="toast-title">${title}</h4>` : ''}
+                        <p class="toast-text">${message}</p>
+                    </div>
+                    <button class="toast-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Add close event
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', function() {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        toastContainer.removeChild(toast);
+                    }, 300);
+                });
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentNode === toastContainer) {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            if (toast.parentNode === toastContainer) {
+                                toastContainer.removeChild(toast);
+                            }
+                        }, 300);
+                    }
+                }, 5000);
+            }
+            
             // User authentication functions
             function initializeGoogleSignIn() {
                 // Using Google Identity Services
@@ -2009,7 +2290,7 @@
                 closeAuthModal();
                 
                 // Show welcome message
-                alert(`Welcome to DSOG STORE, ${user.name}!`);
+                showToast(`Welcome to DSOG STORE, ${user.name}!`, 'success', 'Welcome!');
             }
             
             function parseJwt(token) {
@@ -2026,13 +2307,13 @@
                 currentUser = null;
                 localStorage.removeItem('dsog_user');
                 updateUserUI();
-                alert('You have been signed out.');
+                showToast('You have been signed out.', 'info', 'Signed Out');
             }
             
             function updateUserUI() {
                 if (currentUser) {
                     userInfo.style.display = 'block';
-                    authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+                    authBtn.style.display = 'none';
                     userName.textContent = currentUser.name;
                     
                     if (currentUser.picture) {
@@ -2042,7 +2323,7 @@
                     }
                 } else {
                     userInfo.style.display = 'none';
-                    authBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                    authBtn.style.display = 'flex';
                 }
             }
             
@@ -2093,7 +2374,7 @@
                 updateCartUI();
                 
                 // Show confirmation
-                alert(`${product.name} added to cart!`);
+                showToast(`${product.name} added to cart!`, 'success', 'Item Added');
             }
             
             function updateCartItemQuantity(index, newQuantity) {
@@ -2648,9 +2929,9 @@
                     <div class="product-card" style="grid-column: 1 / -1; text-align: center; padding: 1.5rem;">
                         <div class="error-message" style="display: flex; margin: 0;">
                             <i class="fas fa-exclamation-circle message-icon"></i>
-                            <div>
-                                <h4 style="font-size: 1.1rem;">Error Loading Products</h4>
-                                <p style="font-size: 0.9rem;">${message}</p>
+                            <div class="message-content">
+                                <h4 class="message-title">Error Loading Products</h4>
+                                <p class="message-text">${message}</p>
                                 <button onclick="loadProducts()" style="
                                     background: var(--light);
                                     color: var(--primary);
