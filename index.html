@@ -1025,6 +1025,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 <script>
     // Your Firebase configuration
     const firebaseConfig = {
@@ -1040,28 +1043,6 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
-    // Simple admin panel
-    document.write(`
-        <div style="background: #172a45; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #ff6b8b; margin-bottom: 15px;">🧪 TEST MODE - Update Dashboard</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
-                <div>
-                    <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Weekly Sales</label>
-                    <input type="number" id="testWeeklySales" placeholder="14285" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
-                </div>
-                <div>
-                    <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Growth %</label>
-                    <input type="number" id="testGrowth" placeholder="12" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
-                </div>
-                <div>
-                    <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Products Sold</label>
-                    <input type="number" id="testProductsSold" placeholder="117" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
-                </div>
-            </div>
-            <button onclick="updateTestData()" style="background: #ff6b8b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Update Dashboard</button>
-        </div>
-    `);
 
     // Listen for real-time updates
     database.ref('dashboard').on('value', (snapshot) => {
@@ -1114,6 +1095,34 @@
 
     // Your existing clock and animation code
     document.addEventListener('DOMContentLoaded', function() {
+        // Add admin panel using DOM insertion (safe method)
+        const adminPanelHTML = `
+            <div style="background: #172a45; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #ff6b8b; margin-bottom: 15px;">🧪 TEST MODE - Update Dashboard</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    <div>
+                        <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Weekly Sales</label>
+                        <input type="number" id="testWeeklySales" placeholder="14285" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
+                    </div>
+                    <div>
+                        <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Growth %</label>
+                        <input type="number" id="testGrowth" placeholder="12" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
+                    </div>
+                    <div>
+                        <label style="color: #b8b8d1; display: block; margin-bottom: 5px;">Products Sold</label>
+                        <input type="number" id="testProductsSold" placeholder="117" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ff6b8b; background: rgba(255,255,255,0.1); color: white;">
+                    </div>
+                </div>
+                <button onclick="updateTestData()" style="background: #ff6b8b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Update Dashboard</button>
+            </div>
+        `;
+        
+        // Insert admin panel after the navigation
+        const topNav = document.querySelector('.top-nav');
+        if (topNav) {
+            topNav.insertAdjacentHTML('afterend', adminPanelHTML);
+        }
+
         // Clock functionality
         function updateClock() {
             const now = new Date();
@@ -1137,16 +1146,42 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add("visible");
+                    
+                    // Animate product cards sequentially
+                    if (entry.target.id === "productsSection" || entry.target.id === "newArrivalsSection") {
+                        const sectionId = entry.target.id;
+                        const productCards = [
+                            document.getElementById(`${sectionId === "productsSection" ? "productCard" : "newArrivalCard"}1`),
+                            document.getElementById(`${sectionId === "productsSection" ? "productCard" : "newArrivalCard"}2`),
+                            document.getElementById(`${sectionId === "productsSection" ? "productCard" : "newArrivalCard"}3`),
+                            document.getElementById(`${sectionId === "productsSection" ? "productCard" : "newArrivalCard"}4`)
+                        ];
+                        
+                        productCards.forEach((card, index) => {
+                            setTimeout(() => {
+                                if (card) card.classList.add("visible");
+                            }, index * 150);
+                        });
+                    }
+                    
+                    // Animate sales bars if it's the target card
+                    if (entry.target.id === "targetCard") {
+                        animateSalesBars();
+                    }
                 }
             });
         }, { threshold: 0.1 });
 
-        [document.getElementById("metricCard1"), document.getElementById("metricCard2"), 
-         document.getElementById("metricCard3"), document.getElementById("metricCard4"),
-         document.getElementById("targetCard"), document.getElementById("statCard1"),
-         document.getElementById("statCard2"), document.getElementById("statCard3"),
-         document.getElementById("productsSection"), document.getElementById("newArrivalsSection")]
-        .forEach(el => { if (el) observer.observe(el); });
+        // Observe elements
+        [
+            document.getElementById("metricCard1"), document.getElementById("metricCard2"), 
+            document.getElementById("metricCard3"), document.getElementById("metricCard4"),
+            document.getElementById("targetCard"), document.getElementById("statCard1"),
+            document.getElementById("statCard2"), document.getElementById("statCard3"),
+            document.getElementById("productsSection"), document.getElementById("newArrivalsSection")
+        ].forEach(el => { 
+            if (el) observer.observe(el); 
+        });
 
         // Product modal functionality
         const productModal = document.getElementById('productModal');
