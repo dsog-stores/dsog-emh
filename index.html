@@ -6,6 +6,7 @@
     <title>DSOG STORES - HOME</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Your existing CSS remains the same */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
         :root {
@@ -1251,6 +1252,8 @@
         
         // Update entire dashboard with new data
         function updateEntireDashboard(data) {
+            console.log("Updating dashboard with:", data); // Debug log
+            
             // Update metrics
             document.querySelector('#metricCard1 .metric-value').textContent = formatNumber(data.metrics.weeklySales);
             document.querySelector('#metricCard2 .metric-value').textContent = `+${data.metrics.growth}%`;
@@ -1391,6 +1394,8 @@
             database.ref('dashboard').once('value').then((snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    console.log("Loading current data:", data); // Debug log
+                    
                     // Load metrics
                     document.getElementById('adminWeeklySales').value = data.metrics.weeklySales;
                     document.getElementById('adminGrowth').value = data.metrics.growth;
@@ -1585,11 +1590,11 @@
             const dailySalesInput = document.getElementById('adminDailySales').value || "2100,3200,2800,3900,2285,0,0";
             const dailySales = dailySalesInput.split(',').map(num => parseInt(num) || 0);
             
+            // Get current product data to preserve it
             database.ref('dashboard').once('value').then((snapshot) => {
                 const currentData = snapshot.val();
                 
                 const updatedData = {
-                    ...currentData,
                     metrics: {
                         weeklySales: weeklySales,
                         growth: growth,
@@ -1604,7 +1609,10 @@
                     target: {
                         weeklyTarget: weeklyTarget,
                         dailySales: dailySales
-                    }
+                    },
+                    // Preserve the existing product data
+                    bestSellingProducts: currentData.bestSellingProducts || defaultData.bestSellingProducts,
+                    newArrivals: currentData.newArrivals || defaultData.newArrivals
                 };
                 
                 database.ref('dashboard').set(updatedData)
