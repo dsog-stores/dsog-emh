@@ -1024,11 +1024,11 @@
             messagingSenderId: "1085972125142",
             appId: "1:1085972125142:web:9abea9ee0dd792a052c077"
         };
-
+        
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
+        
         // Default data structure
         const defaultData = {
             metrics: {
@@ -1072,32 +1072,6 @@
                     stock: "15",
                     rating: "4.6",
                     reviews: "24"
-                },
-                {
-                    id: 3,
-                    name: "Ceramic Vase",
-                    category: "Home Decor",
-                    price: "85",
-                    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-                    sold: "35",
-                    total: "2975",
-                    description: "Handcrafted ceramic vase with a unique glazed finish. Perfect for fresh flowers or as a standalone decorative piece.",
-                    stock: "12",
-                    rating: "4.9",
-                    reviews: "41"
-                },
-                {
-                    id: 4,
-                    name: "Gold Necklace",
-                    category: "Jewelry",
-                    price: "320",
-                    image: "https://images.unsplash.com/photo-1588099768531-a72d4a198538?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-                    sold: "12",
-                    total: "3840",
-                    description: "Elegant 18k gold necklace with a delicate pendant. A timeless piece that complements any outfit.",
-                    stock: "8",
-                    rating: "4.7",
-                    reviews: "19"
                 }
             ],
             newArrivals: [
@@ -1126,36 +1100,10 @@
                     stock: "40",
                     rating: "New",
                     reviews: "0"
-                },
-                {
-                    id: 3,
-                    name: "Designer Heels",
-                    category: "Shoes",
-                    price: "155",
-                    image: "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwa90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-                    sold: "0",
-                    total: "0",
-                    description: "Elegant designer heels with comfortable insoles and secure fastening. Perfect for both day and evening wear.",
-                    stock: "18",
-                    rating: "New",
-                    reviews: "0"
-                },
-                {
-                    id: 4,
-                    name: "Luxury Perfume",
-                    category: "Fragrance",
-                    price: "125",
-                    image: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwa90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
-                    sold: "0",
-                    total: "0",
-                    description: "Luxury fragrance with notes of jasmine, sandalwood, and vanilla. Long-lasting scent that evolves throughout the day.",
-                    stock: "30",
-                    rating: "New",
-                    reviews: "0"
                 }
             ]
         };
-
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Admin panel toggle
             const adminPanel = document.getElementById('adminPanel');
@@ -1171,7 +1119,7 @@
                     this.textContent = '👤 Show Admin Panel';
                 }
             });
-
+        
             // Listen for real-time updates
             database.ref('dashboard').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -1182,7 +1130,7 @@
                     database.ref('dashboard').set(defaultData);
                 }
             });
-
+        
             // Clock functionality
             function updateClock() {
                 const now = new Date();
@@ -1200,7 +1148,7 @@
             
             updateClock();
             setInterval(updateClock, 60000);
-
+        
             // Animation observer
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -1209,30 +1157,28 @@
                     }
                 });
             }, { threshold: 0.1 });
-
+        
             [document.getElementById("metricCard1"), document.getElementById("metricCard2"), 
              document.getElementById("metricCard3"), document.getElementById("metricCard4"),
              document.getElementById("targetCard"), document.getElementById("statCard1"),
              document.getElementById("statCard2"), document.getElementById("statCard3"),
              document.getElementById("productsSection"), document.getElementById("newArrivalsSection")]
             .forEach(el => { if (el) observer.observe(el); });
-
-            // Product modal functionality
-            const productModal = document.getElementById('productModal');
-            const modalClose = document.getElementById('modalClose');
-            const modalImage = document.getElementById('modalImage');
-            const modalCategory = document.getElementById('modalCategory');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalPrice = document.getElementById('modalPrice');
-            const modalDescription = document.getElementById('modalDescription');
-            const modalSold = document.getElementById('modalSold');
-            const modalStock = document.getElementById('modalStock');
-            const modalRating = document.getElementById('modalRating');
-            const modalReviews = document.getElementById('modalReviews');
-            
-            // Product click will be handled by dynamic product rendering
+        
+            // Close modal functionality
+            document.getElementById('modalClose').addEventListener('click', function() {
+                document.getElementById('productModal').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        
+            document.getElementById('productModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
         });
-
+        
         // Update entire dashboard with new data
         function updateEntireDashboard(data) {
             // Update metrics
@@ -1264,7 +1210,7 @@
             renderProducts(data.bestSellingProducts, 'bestSellingProducts');
             renderProducts(data.newArrivals, 'newArrivalsProducts');
         }
-
+        
         // Render products to the page
         function renderProducts(products, containerId) {
             const container = document.getElementById(containerId);
@@ -1273,7 +1219,7 @@
             let html = '';
             products.forEach((product, index) => {
                 html += `
-                    <div class="product-card" id="${containerId.slice(0, -1)}${index + 1}" data-product='${JSON.stringify(product)}'>
+                    <div class="product-card" id="${containerId.slice(0, -1)}${index + 1}" data-product='${JSON.stringify(product).replace(/'/g, "&apos;")}'>
                         <div class="product-image" style="background-image: url('${product.image}')"></div>
                         <div class="product-info">
                             <span class="product-category">${product.category}</span>
@@ -1299,7 +1245,7 @@
                 });
             });
         }
-
+        
         // Show product modal
         function showProductModal(productData) {
             const modalImage = document.getElementById('modalImage');
@@ -1326,7 +1272,7 @@
             productModal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-
+        
         // Update sales bars
         function updateSalesBars(dailySales) {
             const salesBars = document.querySelectorAll('.sales-bar');
@@ -1343,13 +1289,14 @@
                 valueDisplay.textContent = value > 0 ? `Ksh ${formatNumber(value)}` : '';
             });
         }
-
+        
         // Format numbers with commas
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
-
-        // Admin functions
+        
+        // ================= ADMIN FUNCTIONS =================
+        
         function loadCurrentData() {
             database.ref('dashboard').once('value').then((snapshot) => {
                 const data = snapshot.val();
@@ -1370,118 +1317,136 @@
                     document.getElementById('adminDailySales').value = data.target.dailySales.join(',');
                     
                     // Load products into admin panels
-                    renderProductAdminForms(data.bestSellingProducts, 'bestSellingProductsAdmin');
-                    renderProductAdminForms(data.newArrivals, 'newArrivalsAdmin');
+                    renderProductAdminForms(data.bestSellingProducts, 'bestSellingProductsAdmin', 'bestSellingProducts');
+                    renderProductAdminForms(data.newArrivals, 'newArrivalsAdmin', 'newArrivals');
                 }
             });
         }
-
-        function renderProductAdminForms(products, containerId) {
-            const container = document.getElementById(containerId);
+        
+        function renderProductAdminForms(products, adminContainerId, dataKey) {
+            const container = document.getElementById(adminContainerId);
             let html = '';
             
             products.forEach((product, index) => {
                 html += `
-                    <div class="admin-section" style="background: rgba(255,255,255,0.02); margin-bottom: 10px;">
-                        <h5 style="color: var(--soft-teal); margin-bottom: 10px;">Product ${index + 1}</h5>
+                    <div class="admin-section" style="background: rgba(255,255,255,0.02); margin-bottom: 15px; padding: 15px; border-radius: 6px; border-left: 3px solid var(--light-pink);">
+                        <h5 style="color: var(--soft-teal); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Product ${index + 1}</span>
+                            <button class="admin-btn" onclick="removeProduct('${dataKey}', ${index})" style="background: #ff4757; padding: 5px 10px; font-size: 12px;">Remove</button>
+                        </h5>
                         <div class="admin-grid">
                             <div class="admin-input-group">
-                                <label>Name</label>
-                                <input type="text" value="${product.name}" onchange="updateProductField('${containerId}', ${index}, 'name', this.value)">
+                                <label>Product Name</label>
+                                <input type="text" value="${product.name}" onchange="updateProductField('${dataKey}', ${index}, 'name', this.value)">
                             </div>
                             <div class="admin-input-group">
                                 <label>Category</label>
-                                <input type="text" value="${product.category}" onchange="updateProductField('${containerId}', ${index}, 'category', this.value)">
+                                <input type="text" value="${product.category}" onchange="updateProductField('${dataKey}', ${index}, 'category', this.value)">
                             </div>
                             <div class="admin-input-group">
-                                <label>Price</label>
-                                <input type="number" value="${product.price}" onchange="updateProductField('${containerId}', ${index}, 'price', this.value)">
+                                <label>Price (Ksh)</label>
+                                <input type="number" value="${product.price}" onchange="updateProductField('${dataKey}', ${index}, 'price', this.value)">
                             </div>
                             <div class="admin-input-group">
                                 <label>Image URL</label>
-                                <input type="text" value="${product.image}" onchange="updateProductField('${containerId}', ${index}, 'image', this.value)">
+                                <input type="text" value="${product.image}" onchange="updateProductField('${dataKey}', ${index}, 'image', this.value)">
                             </div>
                             <div class="admin-input-group">
-                                <label>Sold</label>
-                                <input type="number" value="${product.sold}" onchange="updateProductField('${containerId}', ${index}, 'sold', this.value)">
+                                <label>Units Sold</label>
+                                <input type="number" value="${product.sold}" onchange="updateProductField('${dataKey}', ${index}, 'sold', this.value)">
                             </div>
                             <div class="admin-input-group">
-                                <label>Stock</label>
-                                <input type="number" value="${product.stock}" onchange="updateProductField('${containerId}', ${index}, 'stock', this.value)">
+                                <label>Stock Available</label>
+                                <input type="number" value="${product.stock}" onchange="updateProductField('${dataKey}', ${index}, 'stock', this.value)">
                             </div>
                             <div class="admin-input-group">
                                 <label>Rating</label>
-                                <input type="text" value="${product.rating}" onchange="updateProductField('${containerId}', ${index}, 'rating', this.value)">
+                                <input type="text" value="${product.rating}" onchange="updateProductField('${dataKey}', ${index}, 'rating', this.value)">
                             </div>
                             <div class="admin-input-group">
-                                <label>Reviews</label>
-                                <input type="number" value="${product.reviews}" onchange="updateProductField('${containerId}', ${index}, 'reviews', this.value)">
+                                <label>Reviews Count</label>
+                                <input type="number" value="${product.reviews}" onchange="updateProductField('${dataKey}', ${index}, 'reviews', this.value)">
                             </div>
                         </div>
                         <div class="admin-input-group">
                             <label>Description</label>
-                            <textarea onchange="updateProductField('${containerId}', ${index}, 'description', this.value)">${product.description}</textarea>
+                            <textarea onchange="updateProductField('${dataKey}', ${index}, 'description', this.value)" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--light-pink); background: rgba(255,255,255,0.1); color: white; height: 60px; resize: vertical;">${product.description}</textarea>
                         </div>
-                        <button class="admin-btn secondary" onclick="removeProduct('${containerId}', ${index})" style="background: #ff4757;">Remove</button>
                     </div>
                 `;
             });
             
             container.innerHTML = html;
         }
-
+        
         function updateProductField(section, index, field, value) {
             database.ref('dashboard').once('value').then((snapshot) => {
                 const data = snapshot.val();
-                const sectionKey = section === 'bestSellingProductsAdmin' ? 'bestSellingProducts' : 'newArrivals';
                 
-                if (data && data[sectionKey] && data[sectionKey][index]) {
-                    data[sectionKey][index][field] = value;
+                if (data && data[section] && data[section][index]) {
+                    data[section][index][field] = value;
+                    
                     // Recalculate total if sold or price changed
                     if (field === 'sold' || field === 'price') {
-                        data[sectionKey][index].total = (parseInt(data[sectionKey][index].sold) * parseInt(data[sectionKey][index].price)).toString();
+                        const sold = parseInt(data[section][index].sold) || 0;
+                        const price = parseInt(data[section][index].price) || 0;
+                        data[section][index].total = (sold * price).toString();
                     }
+                    
                     database.ref('dashboard').set(data);
                 }
             });
         }
-
+        
         function addProduct(section) {
             database.ref('dashboard').once('value').then((snapshot) => {
                 const data = snapshot.val();
                 const sectionKey = section === 'bestSelling' ? 'bestSellingProducts' : 'newArrivals';
                 
                 const newProduct = {
-                    id: data[sectionKey].length + 1,
+                    id: Date.now(), // Unique ID based on timestamp
                     name: "New Product",
                     category: "Category",
-                    price: "0",
+                    price: "99",
                     image: "https://images.unsplash.com/photo-1560769684-5507c64e2f7f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
                     sold: "0",
                     total: "0",
-                    description: "Product description here",
-                    stock: "0",
-                    rating: "0",
+                    description: "Enter product description here...",
+                    stock: "10",
+                    rating: "4.0",
                     reviews: "0"
                 };
                 
                 data[sectionKey].push(newProduct);
-                database.ref('dashboard').set(data);
+                database.ref('dashboard').set(data)
+                    .then(() => {
+                        showNotification('✅ New product added!', 'success');
+                    })
+                    .catch((error) => {
+                        showNotification('❌ Error adding product: ' + error.message, 'error');
+                    });
             });
         }
-
+        
         function removeProduct(section, index) {
-            database.ref('dashboard').once('value').then((snapshot) => {
-                const data = snapshot.val();
-                const sectionKey = section === 'bestSellingProductsAdmin' ? 'bestSellingProducts' : 'newArrivals';
-                
-                if (data && data[sectionKey] && data[sectionKey][index]) {
-                    data[sectionKey].splice(index, 1);
-                    database.ref('dashboard').set(data);
-                }
-            });
+            if (confirm('Are you sure you want to remove this product?')) {
+                database.ref('dashboard').once('value').then((snapshot) => {
+                    const data = snapshot.val();
+                    
+                    if (data && data[section] && data[section][index]) {
+                        data[section].splice(index, 1);
+                        database.ref('dashboard').set(data)
+                            .then(() => {
+                                showNotification('✅ Product removed!', 'success');
+                            })
+                            .catch((error) => {
+                                showNotification('❌ Error removing product: ' + error.message, 'error');
+                            });
+                    }
+                });
+            }
         }
-
+        
         function updateAllData() {
             const weeklySales = parseInt(document.getElementById('adminWeeklySales').value) || 14285;
             const growth = parseInt(document.getElementById('adminGrowth').value) || 12;
@@ -1518,37 +1483,50 @@
                 
                 database.ref('dashboard').set(updatedData)
                     .then(() => {
-                        alert('✅ All data updated successfully!');
+                        showNotification('✅ All data updated successfully!', 'success');
                     })
                     .catch((error) => {
-                        alert('❌ Error updating data: ' + error.message);
+                        showNotification('❌ Error updating data: ' + error.message, 'error');
                     });
             });
         }
-
+        
         function resetToDefault() {
             if (confirm('Are you sure you want to reset all data to default values?')) {
                 database.ref('dashboard').set(defaultData)
                     .then(() => {
-                        alert('✅ Data reset to default values!');
+                        showNotification('✅ Data reset to default values!', 'success');
                     })
                     .catch((error) => {
-                        alert('❌ Error resetting data: ' + error.message);
+                        showNotification('❌ Error resetting data: ' + error.message, 'error');
                     });
             }
         }
-
-        // Close modal functionality
-        document.getElementById('modalClose').addEventListener('click', function() {
-            document.getElementById('productModal').classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-
-        document.getElementById('productModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            }
+        
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
         });
     </script>
 </body>
