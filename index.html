@@ -1503,7 +1503,7 @@
             }
         }
         
-        function showNotification(message, type) {
+          function showNotification(message, type) {
             // Create notification element
             const notification = document.createElement('div');
             notification.textContent = message;
@@ -1527,7 +1527,7 @@
                 notification.remove();
             }, 3000);
         }
-        });
-    </script>
+    }); // This closes the DOMContentLoaded event listener
+</script>
 </body>
 </html>
