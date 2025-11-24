@@ -298,6 +298,9 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 107, 139, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .section-title {
@@ -305,6 +308,14 @@
             font-weight: 500;
             color: var(--light-pink);
             margin: 0;
+        }
+        
+        .product-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: rgba(255, 107, 139, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
         }
         
         .products-grid {
@@ -482,6 +493,11 @@
         .admin-btn.secondary {
             background: var(--soft-teal);
             color: var(--dark-blue);
+        }
+        
+        .admin-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
         }
         
         .toggle-admin-btn {
@@ -805,20 +821,20 @@
             
             <!-- Best Selling Products -->
             <div class="admin-section">
-                <h4>🔥 Best Selling Products</h4>
+                <h4>🔥 Best Selling Products (Max: 4)</h4>
                 <div id="bestSellingProductsAdmin">
                     <!-- Will be populated by JavaScript -->
                 </div>
-                <button class="admin-btn secondary" onclick="addProduct('bestSelling')">+ Add Product</button>
+                <button class="admin-btn secondary" id="addBestSellingBtn" onclick="addProduct('bestSellingProducts')">+ Add Product</button>
             </div>
             
             <!-- New Arrivals -->
             <div class="admin-section">
-                <h4>🆕 New Arrivals</h4>
+                <h4>🆕 New Arrivals (Max: 4)</h4>
                 <div id="newArrivalsAdmin">
                     <!-- Will be populated by JavaScript -->
                 </div>
-                <button class="admin-btn secondary" onclick="addProduct('newArrivals')">+ Add Product</button>
+                <button class="admin-btn secondary" id="addNewArrivalBtn" onclick="addProduct('newArrivals')">+ Add Product</button>
             </div>
             
             <div style="margin-top: 20px;">
@@ -956,6 +972,7 @@
             <div class="products-section" id="productsSection">
                 <div class="section-header">
                     <h2 class="section-title">Best Selling Products This Week</h2>
+                    <div class="product-count" id="bestSellingCount">4/4</div>
                 </div>
                 <div class="products-grid" id="bestSellingProducts">
                     <!-- Will be populated by JavaScript -->
@@ -966,6 +983,7 @@
             <div class="products-section" id="newArrivalsSection">
                 <div class="section-header">
                     <h2 class="section-title">New Arrivals</h2>
+                    <div class="product-count" id="newArrivalsCount">4/4</div>
                 </div>
                 <div class="products-grid" id="newArrivalsProducts">
                     <!-- Will be populated by JavaScript -->
@@ -1029,7 +1047,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // Default data structure
+        // Default data structure - LIMITED TO 4 PRODUCTS PER SECTION
         const defaultData = {
             metrics: {
                 weeklySales: 14285,
@@ -1052,7 +1070,7 @@
                     name: "Epitome White T-Shirt",
                     category: "Accessories",
                     price: "249",
-                    image: "https://i.postimg.cc/pV6QC3YQ/Whats-App-Image-2025-11-15-at-14-13-23.jpg",
+                    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                     sold: "42",
                     total: "10458",
                     description: "Premium quality cotton t-shirt with unique graphic print. Comfortable fit for everyday wear. Available in multiple sizes and colors.",
@@ -1065,13 +1083,39 @@
                     name: "Designer Tote",
                     category: "Handbags",
                     price: "189",
-                    image: "https://i.postimg.cc/ZYLyPd6Y/20251112-1350-Tote-Bag-Design-remix-01k9vtxhf1emf82tj6vvectsjk.webp",
+                    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                     sold: "28",
                     total: "5292",
                     description: "Elegant and spacious tote bag made from sustainable materials. Features multiple compartments and sturdy handles.",
                     stock: "15",
                     rating: "4.6",
                     reviews: "24"
+                },
+                {
+                    id: 3,
+                    name: "Classic Denim Jacket",
+                    category: "Fashion",
+                    price: "349",
+                    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                    sold: "35",
+                    total: "12215",
+                    description: "Timeless denim jacket with a modern fit. Perfect for layering in any season. Available in multiple washes.",
+                    stock: "12",
+                    rating: "4.7",
+                    reviews: "42"
+                },
+                {
+                    id: 4,
+                    name: "Leather Wallet",
+                    category: "Accessories",
+                    price: "129",
+                    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                    sold: "12",
+                    total: "1548",
+                    description: "Genuine leather wallet with multiple card slots and a coin compartment. Slim design fits comfortably in any pocket.",
+                    stock: "22",
+                    rating: "4.5",
+                    reviews: "18"
                 }
             ],
             newArrivals: [
@@ -1098,6 +1142,32 @@
                     total: "0",
                     description: "Soft and luxurious decorative pillow with intricate embroidery. Adds a touch of elegance to any room.",
                     stock: "40",
+                    rating: "New",
+                    reviews: "0"
+                },
+                {
+                    id: 3,
+                    name: "Wireless Earbuds",
+                    category: "Electronics",
+                    price: "199",
+                    image: "https://images.unsplash.com/photo-1590658165737-15a047b8b5e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                    sold: "0",
+                    total: "0",
+                    description: "High-quality wireless earbuds with noise cancellation and 24-hour battery life. Perfect for music and calls.",
+                    stock: "30",
+                    rating: "New",
+                    reviews: "0"
+                },
+                {
+                    id: 4,
+                    name: "Yoga Mat",
+                    category: "Fitness",
+                    price: "65",
+                    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                    sold: "0",
+                    total: "0",
+                    description: "Non-slip yoga mat with extra cushioning for comfort. Perfect for yoga, pilates, and floor exercises.",
+                    stock: "35",
                     rating: "New",
                     reviews: "0"
                 }
@@ -1206,9 +1276,16 @@
             // Update sales bars
             updateSalesBars(data.target.dailySales);
             
-            // Update products
-            renderProducts(data.bestSellingProducts, 'bestSellingProducts');
-            renderProducts(data.newArrivals, 'newArrivalsProducts');
+            // Update products - LIMIT TO 4 PRODUCTS
+            const limitedBestSelling = data.bestSellingProducts.slice(0, 4);
+            const limitedNewArrivals = data.newArrivals.slice(0, 4);
+            
+            renderProducts(limitedBestSelling, 'bestSellingProducts');
+            renderProducts(limitedNewArrivals, 'newArrivalsProducts');
+            
+            // Update product counts
+            document.getElementById('bestSellingCount').textContent = `${limitedBestSelling.length}/4`;
+            document.getElementById('newArrivalsCount').textContent = `${limitedNewArrivals.length}/4`;
         }
         
         // Render products to the page
@@ -1220,7 +1297,7 @@
             products.forEach((product, index) => {
                 html += `
                     <div class="product-card" id="${containerId.slice(0, -1)}${index + 1}" data-product='${JSON.stringify(product).replace(/'/g, "&apos;")}'>
-                        <div class="product-image" style="background-image: url('${product.image}')"></div>
+                        <div class="product-image" style="background-image: url('${product.image}'), linear-gradient(135deg, #2d2d44, #1a1a2e)"></div>
                         <div class="product-info">
                             <span class="product-category">${product.category}</span>
                             ${containerId === 'newArrivalsProducts' ? '<span class="new-arrival-badge">New!</span>' : ''}
@@ -1237,8 +1314,21 @@
             
             container.innerHTML = html;
             
-            // Re-attach click events to product cards
-            document.querySelectorAll('.product-card').forEach(card => {
+            // Add animation observer for the new product cards
+            const productCards = container.querySelectorAll('.product-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            productCards.forEach((card, index) => {
+                // Observe each card for animations
+                observer.observe(card);
+                
+                // Add click event directly to each card
                 card.addEventListener('click', function() {
                     const productData = JSON.parse(this.getAttribute('data-product'));
                     showProductModal(productData);
@@ -1319,6 +1409,9 @@
                     // Load products into admin panels
                     renderProductAdminForms(data.bestSellingProducts, 'bestSellingProductsAdmin', 'bestSellingProducts');
                     renderProductAdminForms(data.newArrivals, 'newArrivalsAdmin', 'newArrivals');
+                    
+                    // Update add button states based on current product counts
+                    updateAddButtonStates(data);
                 }
             });
         }
@@ -1327,7 +1420,10 @@
             const container = document.getElementById(adminContainerId);
             let html = '';
             
-            products.forEach((product, index) => {
+            // Limit display to 4 products in admin panel too
+            const limitedProducts = products.slice(0, 4);
+            
+            limitedProducts.forEach((product, index) => {
                 html += `
                     <div class="admin-section" style="background: rgba(255,255,255,0.02); margin-bottom: 15px; padding: 15px; border-radius: 6px; border-left: 3px solid var(--light-pink);">
                         <h5 style="color: var(--soft-teal); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
@@ -1403,6 +1499,12 @@
                 const data = snapshot.val();
                 const sectionKey = section === 'bestSelling' ? 'bestSellingProducts' : 'newArrivals';
                 
+                // Check if we've reached the maximum of 4 products
+                if (data[sectionKey].length >= 4) {
+                    showNotification('❌ Maximum of 4 products reached for this section!', 'error');
+                    return;
+                }
+                
                 const newProduct = {
                     id: Date.now(), // Unique ID based on timestamp
                     name: "New Product",
@@ -1421,6 +1523,7 @@
                 database.ref('dashboard').set(data)
                     .then(() => {
                         showNotification('✅ New product added!', 'success');
+                        updateAddButtonStates(data);
                     })
                     .catch((error) => {
                         showNotification('❌ Error adding product: ' + error.message, 'error');
@@ -1438,12 +1541,35 @@
                         database.ref('dashboard').set(data)
                             .then(() => {
                                 showNotification('✅ Product removed!', 'success');
+                                updateAddButtonStates(data);
                             })
                             .catch((error) => {
                                 showNotification('❌ Error removing product: ' + error.message, 'error');
                             });
                     }
                 });
+            }
+        }
+        
+        function updateAddButtonStates(data) {
+            // Enable/disable add buttons based on current product counts
+            const bestSellingBtn = document.getElementById('addBestSellingBtn');
+            const newArrivalsBtn = document.getElementById('addNewArrivalBtn');
+            
+            if (data.bestSellingProducts.length >= 4) {
+                bestSellingBtn.disabled = true;
+                bestSellingBtn.textContent = "Max 4 Products";
+            } else {
+                bestSellingBtn.disabled = false;
+                bestSellingBtn.textContent = "+ Add Product";
+            }
+            
+            if (data.newArrivals.length >= 4) {
+                newArrivalsBtn.disabled = true;
+                newArrivalsBtn.textContent = "Max 4 Products";
+            } else {
+                newArrivalsBtn.disabled = false;
+                newArrivalsBtn.textContent = "+ Add Product";
             }
         }
         
@@ -1503,7 +1629,7 @@
             }
         }
         
-          function showNotification(message, type) {
+        function showNotification(message, type) {
             // Create notification element
             const notification = document.createElement('div');
             notification.textContent = message;
@@ -1527,6 +1653,6 @@
                 notification.remove();
             }, 3000);
         }
-</script>
+    </script>
 </body>
 </html>
