@@ -2860,7 +2860,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
     <script>
-        // Enhanced Franchise Management System with Silent Location Detection
+        // ==================== COMPLETE WORKING JAVASCRIPT ====================
+
+        // Your Google Apps Script URL
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw8UI6-xwor3TlH9KESJHaj1Dxzo5MtfbjX-EWnApN0dEiEM66_CH1egA0dTp1E_zeNAA/exec';
+        
+        // ==================== FRANCHISE SYSTEM ====================
+        
         const franchisees = {
             "nairobi": { 
                 name: "DSOG Nairobi", 
@@ -2870,7 +2876,7 @@
             },
             "mombasa": { 
                 name: "DSOG Mombasa", 
-                whatsapp: "254733737983",
+                whatsapp: "254733737983", 
                 manager: "DSOG",
                 location: "Mombasa Island"
             },
@@ -2881,41 +2887,40 @@
                 location: "Kisumu Central"
             }
         };
-
-        // Current selected franchisee - will be dynamically set
+        
+        // Current selected franchisee
         let currentFranchisee = null;
-
-        // Wishlist system
-        let wishlistItems = JSON.parse(localStorage.getItem('dsogstores_wishlist')) || [];
-
-        // Image Gallery System
-        let currentGalleryImages = [];
-        let currentGalleryIndex = 0;
-
+        
         // Initialize franchise system with silent detection
         function initializeFranchiseSystem() {
+            console.log('📍 Initializing franchise system...');
+            
             // Load saved franchise preference
             const savedFranchisee = localStorage.getItem('preferredFranchisee');
             
             if (savedFranchisee && franchisees[savedFranchisee]) {
                 selectFranchisee(savedFranchisee);
+                console.log(`✅ Loaded saved franchise: ${currentFranchisee.name}`);
             } else {
                 // No saved preference, detect location silently
                 autoDetectLocationSilently();
             }
-
+        
             // Add change location button handler
-            document.getElementById('changeLocationBtn').addEventListener('click', function() {
-                showLocationSelector();
-            });
+            const changeLocationBtn = document.getElementById('changeLocationBtn');
+            if (changeLocationBtn) {
+                changeLocationBtn.addEventListener('click', function() {
+                    showLocationSelector();
+                });
+            }
         }
-
-        // Auto-detect location silently with multiple fallbacks
+        
+        // Auto-detect location silently
         async function autoDetectLocationSilently() {
             try {
-                // Try HTML5 geolocation first (most accurate)
+                // Try HTML5 geolocation first
                 if (navigator.geolocation) {
-                    const position = await new Promise((resolve, reject) {
+                    const position = await new Promise((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, {
                             enableHighAccuracy: false,
                             timeout: 10000,
@@ -2936,30 +2941,26 @@
                 await detectUserLocationSilently();
             }
         }
-
-        // IP-based location detection (silent)
+        
+        // IP-based location detection
         async function detectUserLocationSilently() {
             try {
-                // Using ipapi.co (free tier available)
                 const response = await fetch('https://ipapi.co/json/');
                 const locationData = await response.json();
                 
                 const city = locationData.city;
                 const country = locationData.country_name;
                 
-                // Handle detected location silently
                 handleDetectedLocationSilently(city, country);
                 
             } catch (error) {
-                // Final fallback to default with generic location
                 handleUnknownLocationSilently();
             }
         }
-
-        // Set store based on coordinates (silent)
+        
+        // Set store based on coordinates
         async function setStoreByCoordinates(lat, lon) {
             try {
-                // Using OpenStreetMap Nominatim (free)
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
                 );
@@ -2968,20 +2969,17 @@
                 const city = data.address.city || data.address.town || data.address.county || '';
                 const country = data.address.country;
                 
-                // Handle detected location silently
                 handleDetectedLocationSilently(city, country);
                 
             } catch (error) {
-                // Fallback to IP detection
                 await detectUserLocationSilently();
             }
         }
-
-        // Handle detected location silently
+        
+        // Handle detected location
         function handleDetectedLocationSilently(city, country) {
             const cityLower = city ? city.toLowerCase() : '';
             
-            // Check if it's a known franchise location
             if (cityLower.includes('nairobi')) {
                 selectFranchisee('nairobi');
             } else if (cityLower.includes('mombasa')) {
@@ -2989,15 +2987,13 @@
             } else if (cityLower.includes('kisumu')) {
                 selectFranchisee('kisumu');
             } else {
-                // Handle unknown locations - show actual detected location
                 handleUnknownLocationSilently(city, country);
             }
         }
-
-        // Handle unknown locations silently
+        
+        // Handle unknown locations
         function handleUnknownLocationSilently(city = null, country = null) {
             if (city && country) {
-                // Show actual detected location
                 currentFranchisee = {
                     name: `DSOG ${city}`,
                     whatsapp: "254733737983",
@@ -3005,7 +3001,6 @@
                     location: `${city}, ${country}`
                 };
                 
-                // Save the detected location
                 localStorage.setItem('detectedLocation', JSON.stringify({
                     city: city,
                     country: country,
@@ -3013,7 +3008,6 @@
                 }));
                 
             } else {
-                // No location detected - use default
                 currentFranchisee = {
                     name: "DSOG Online Store",
                     whatsapp: "254733737983",
@@ -3022,26 +3016,29 @@
                 };
             }
             
-            // Update WhatsApp buttons
             updateWhatsAppButtons();
+            console.log(`📍 Auto-detected franchise: ${currentFranchisee.name}`);
         }
-
+        
         // Select franchisee function
         function selectFranchisee(location) {
             currentFranchisee = franchisees[location];
             
             // Update UI
-            document.getElementById('currentLocation').textContent = currentFranchisee.name;
+            const currentLocationElement = document.getElementById('currentLocation');
+            if (currentLocationElement) {
+                currentLocationElement.textContent = currentFranchisee.name;
+            }
             
             // Save preference
             localStorage.setItem('preferredFranchisee', location);
             
-            // Update WhatsApp buttons throughout the site
+            // Update WhatsApp buttons
             updateWhatsAppButtons();
             
-            console.log(`Franchisee selected: ${currentFranchisee.name}`);
+            console.log(`📍 Franchisee selected: ${currentFranchisee.name}`);
         }
-
+        
         // Show location selector modal
         function showLocationSelector() {
             const modal = document.createElement('div');
@@ -3058,7 +3055,6 @@
                 z-index: 2000;
             `;
             
-            // Get detected location for display
             const detectedLocation = JSON.parse(localStorage.getItem('detectedLocation') || '{}');
             const detectedCity = detectedLocation.city || 'your location';
             
@@ -3083,14 +3079,13 @@
             
             document.body.appendChild(modal);
             
-            // Close modal when clicking outside
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.remove();
                 }
             });
         }
-
+        
         // Update all WhatsApp buttons with current franchisee
         function updateWhatsAppButtons() {
             if (window.productElements) {
@@ -3110,7 +3105,7 @@
                 });
             }
         }
-
+        
         // Order via WhatsApp with franchise tracking
         function orderViaWhatsApp(product) {
             if (!currentFranchisee) {
@@ -3127,14 +3122,11 @@
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${currentFranchisee.whatsapp}?text=${encodedMessage}`;
             
-            // Track the order attempt
             trackOrderAttempt(product, currentFranchisee);
-            
-            // Open WhatsApp
             window.open(whatsappUrl, '_blank');
         }
-
-        // Track order attempts for analytics
+        
+        // Track order attempts
         function trackOrderAttempt(product, franchisee) {
             const orderData = {
                 timestamp: new Date().toISOString(),
@@ -3145,23 +3137,359 @@
                 customerAction: 'whatsapp_initiated'
             };
             
-            // Save to localStorage for tracking
             const orderAttempts = JSON.parse(localStorage.getItem('orderAttempts') || '[]');
             orderAttempts.push(orderData);
             localStorage.setItem('orderAttempts', JSON.stringify(orderAttempts));
         }
-
-        // Wishlist functionality
+        
+        // ==================== PRODUCT SYSTEM ====================
+        
+        // Initialize Firebase
+        function initFirebase() {
+            console.log('🔥 Firebase initialized for DSOG STORES');
+            testFirebaseConnection();
+        }
+        
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            try {
+                await db.collection('connectionTests').doc('dsog-stores').set({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'connected',
+                    store: 'DSOG STORES'
+                });
+                console.log('✅ Firebase connection successful');
+            } catch (error) {
+                console.log('❌ Firebase connection failed:', error);
+            }
+        }
+        
+        // Load products with proper error handling
+        async function loadProductsWithCache() {
+            console.log('🔄 Loading products...');
+            
+            try {
+                const response = await fetch(`${scriptUrl}?action=getProducts&timestamp=${Date.now()}`);
+                
+                if (!response.ok) {
+                    throw new Error('Sheets response not ok');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    console.log(`✅ Loaded ${result.data.length} products from Google Sheets`);
+                    displayProducts(result.data);
+                    cacheProductsToFirebase(result.data);
+                    return result.data;
+                } else {
+                    throw new Error(result.message || 'No products data received');
+                }
+                
+            } catch (error) {
+                console.error('❌ Google Sheets load failed:', error);
+                loadSampleProducts();
+            }
+        }
+        
+        // Cache products to Firebase
+        async function cacheProductsToFirebase(products) {
+            try {
+                const batch = db.batch();
+                
+                products.forEach(product => {
+                    const productRef = db.collection('productsCache').doc(product.id);
+                    batch.set(productRef, {
+                        ...product,
+                        lastSynced: firebase.firestore.FieldValue.serverTimestamp(),
+                        source: 'google_sheets',
+                        isActive: true,
+                        franchise: currentFranchisee ? currentFranchisee.name : 'unknown'
+                    }, { merge: true });
+                });
+                
+                await batch.commit();
+                console.log(`✅ Cached ${products.length} products to Firebase`);
+            } catch (error) {
+                console.log('⚠️ Firebase cache failed:', error);
+            }
+        }
+        
+        // Sample products for fallback
+        function loadSampleProducts() {
+            const sampleProducts = [
+                {
+                    id: 'DSOG-CL001',
+                    name: 'Luxury Cashmere Sweater',
+                    category: 'clothing',
+                    basePrice: 89.99,
+                    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                    description: 'Premium cashmere sweater with elegant ribbed detailing',
+                    images: ['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80']
+                },
+                {
+                    id: 'DSOG-CL002',
+                    name: 'Designer Silk Dress',
+                    category: 'clothing',
+                    basePrice: 145.50,
+                    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                    description: 'Elegant silk dress for special occasions',
+                    images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80']
+                },
+                {
+                    id: 'DSOG-ART001',
+                    name: 'Abstract Canvas Painting',
+                    category: 'art',
+                    basePrice: 245.75,
+                    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                    description: 'Large abstract painting on premium canvas',
+                    images: ['https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80']
+                },
+                {
+                    id: 'DSOG-HG001',
+                    name: 'Marble Serving Tray',
+                    category: 'home-goods',
+                    basePrice: 65.99,
+                    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                    description: 'Elegant marble serving tray with gold handles',
+                    images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80']
+                }
+            ];
+            
+            displayProducts(sampleProducts);
+        }
+        
+        // Display products in the grid
+        function displayProducts(products) {
+            const container = document.getElementById('productListingsContainer');
+            if (!container) {
+                console.error('❌ Product container not found');
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = `
+                    <div class="product-card" style="text-align: center; padding: 2rem; grid-column: 1 / -1;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--medium-gray); margin-bottom: 1rem;"></i>
+                        <p style="font-size: 0.9rem; color: var(--medium-gray);">No products available at the moment.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            window.currentProducts = products;
+            window.productElements = [];
+            
+            products.forEach(product => {
+                const productCard = createProductCard(product);
+                container.appendChild(productCard);
+                window.productElements.push(productCard);
+            });
+            
+            updateWhatsAppButtons();
+            console.log(`✅ Displayed ${products.length} products`);
+        }
+        
+        // Create individual product card
+        function createProductCard(product) {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.setAttribute('data-category', product.category);
+            
+            const isWishlisted = isInWishlist(product.id);
+            const productImages = product.images || [product.image];
+            
+            productCard.innerHTML = `
+                <div class="product-image-container">
+                    <div class="product-image-slider">
+                        <div class="product-image-slide">
+                            <img src="${product.image}" alt="${product.name}" class="product-main-image" loading="lazy">
+                        </div>
+                    </div>
+                    <span class="product-badge">${product.category}</span>
+                    <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-product-id="${product.id}">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
+                <div class="product-content">
+                    <h3 class="product-title">${product.name}</h3>
+                    <div class="product-price">KSh ${product.basePrice}</div>
+                    <div class="product-meta">
+                        <span><i class="fas fa-shipping-fast"></i> Free Delivery</span>
+                    </div>
+                    <div class="product-footer">
+                        <button class="add-to-cart-btn" data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}'>
+                            <i class="fas fa-shopping-bag"></i> Order via WhatsApp
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            addProductEventListeners(productCard, product, productImages);
+            return productCard;
+        }
+        
+        // Add event listeners to product card
+        function addProductEventListeners(productCard, product, productImages) {
+            // Product click - open view modal
+            productCard.addEventListener('click', function(e) {
+                if (!e.target.closest('.add-to-cart-btn') && !e.target.closest('.wishlist-btn')) {
+                    openProductView(product);
+                }
+            });
+            
+            // Image click - open gallery
+            const productImage = productCard.querySelector('.product-main-image');
+            if (productImage) {
+                productImage.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openImageGallery(productImages);
+                });
+            }
+            
+            // WhatsApp order button
+            const addToCartBtn = productCard.querySelector('.add-to-cart-btn');
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const productData = JSON.parse(this.getAttribute('data-product'));
+                    orderViaWhatsApp(productData);
+                });
+            }
+            
+            // Wishlist button
+            const wishlistBtn = productCard.querySelector('.wishlist-btn');
+            if (wishlistBtn) {
+                wishlistBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const added = addToWishlist(product);
+                    
+                    if (added) {
+                        this.classList.add('active');
+                        this.innerHTML = '<i class="fas fa-heart"></i>';
+                    } else {
+                        this.classList.remove('active');
+                        this.innerHTML = '<i class="fas fa-heart"></i>';
+                    }
+                });
+            }
+        }
+        
+        // ==================== CART SYSTEM ====================
+        
+        let cartItems = JSON.parse(localStorage.getItem('dsogstores_cart')) || [];
+        
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const bottomCartCount = document.getElementById('bottomCartCount');
+            const cartContent = document.getElementById('cartContent');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartTotal = document.getElementById('cartTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            if (!cartCount || !cartContent) return;
+            
+            const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
+            cartCount.textContent = totalItems;
+            if (bottomCartCount) bottomCartCount.textContent = totalItems;
+            
+            if (cartItems.length === 0) {
+                if (cartEmpty) cartEmpty.style.display = 'flex';
+                cartContent.innerHTML = '';
+                if (cartEmpty) cartContent.appendChild(cartEmpty);
+                if (cartTotal) cartTotal.textContent = 'KSh 0.00';
+                if (checkoutBtn) checkoutBtn.disabled = true;
+                return;
+            }
+            
+            if (cartEmpty) cartEmpty.style.display = 'none';
+            if (checkoutBtn) checkoutBtn.disabled = false;
+            
+            let cartHTML = '';
+            let total = 0;
+            
+            cartItems.forEach((item, index) => {
+                const itemTotal = (item.basePrice || 0) * (item.quantity || 1);
+                total += itemTotal;
+                
+                cartHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="${item.image}" alt="${item.name}" loading="lazy">
+                        </div>
+                        <div class="cart-item-details">
+                            <h4 class="cart-item-title">${item.name}</h4>
+                            <div class="cart-item-price">KSh ${item.basePrice}</div>
+                            <div class="cart-item-quantity">
+                                <button class="quantity-btn" onclick="updateCartItemQuantity(${index}, ${(item.quantity || 1) - 1})">-</button>
+                                <input type="number" class="quantity-input" value="${item.quantity || 1}" min="1" onchange="updateCartItemQuantity(${index}, parseInt(this.value) || 1)">
+                                <button class="quantity-btn" onclick="updateCartItemQuantity(${index}, ${(item.quantity || 1) + 1})">+</button>
+                            </div>
+                            <button class="cart-item-remove" onclick="removeFromCart(${index})">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cartContent.innerHTML = cartHTML;
+            if (cartTotal) cartTotal.textContent = `KSh ${total.toFixed(2)}`;
+        }
+        
+        // Cart item management
+        window.updateCartItemQuantity = function(index, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(index);
+                return;
+            }
+            
+            cartItems[index].quantity = newQuantity;
+            localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
+            updateCartUI();
+        };
+        
+        window.removeFromCart = function(index) {
+            const itemName = cartItems[index].name;
+            cartItems.splice(index, 1);
+            localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
+            updateCartUI();
+            showNotification(`${itemName} removed from cart`);
+        };
+        
+        // Add to cart function
+        function addToCart(product) {
+            const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
+            
+            if (existingItemIndex !== -1) {
+                cartItems[existingItemIndex].quantity = (cartItems[existingItemIndex].quantity || 1) + 1;
+            } else {
+                cartItems.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
+            updateCartUI();
+            showNotification(`${product.name} added to cart!`);
+        }
+        
+        // ==================== WISHLIST SYSTEM ====================
+        
+        let wishlistItems = JSON.parse(localStorage.getItem('dsogstores_wishlist')) || [];
+        
         function updateWishlistUI() {
             const wishlistCount = document.getElementById('wishlistCount');
             const bottomWishlistCount = document.getElementById('bottomWishlistCount');
             
-            wishlistCount.textContent = wishlistItems.length;
-            bottomWishlistCount.textContent = wishlistItems.length;
+            if (wishlistCount) wishlistCount.textContent = wishlistItems.length;
+            if (bottomWishlistCount) bottomWishlistCount.textContent = wishlistItems.length;
         }
-
+        
         function addToWishlist(product) {
-            // Check if product is already in wishlist
             const existingIndex = wishlistItems.findIndex(item => item.id === product.id);
             
             if (existingIndex === -1) {
@@ -3176,28 +3504,31 @@
                 return false;
             }
         }
-
+        
         function removeFromWishlist(productId) {
             wishlistItems = wishlistItems.filter(item => item.id !== productId);
             localStorage.setItem('dsogstores_wishlist', JSON.stringify(wishlistItems));
             updateWishlistUI();
         }
-
+        
         function isInWishlist(productId) {
             return wishlistItems.some(item => item.id === productId);
         }
-
-        function openWishlistModal() {
+        
+        // Wishlist modal
+        window.openWishlistModal = function() {
             const wishlistModal = document.getElementById('wishlistModal');
             const wishlistContent = document.getElementById('wishlistContent');
             const wishlistEmpty = document.getElementById('wishlistEmpty');
             
+            if (!wishlistModal || !wishlistContent) return;
+            
             if (wishlistItems.length === 0) {
-                wishlistEmpty.style.display = 'flex';
+                if (wishlistEmpty) wishlistEmpty.style.display = 'flex';
                 wishlistContent.innerHTML = '';
-                wishlistContent.appendChild(wishlistEmpty);
+                if (wishlistEmpty) wishlistContent.appendChild(wishlistEmpty);
             } else {
-                wishlistEmpty.style.display = 'none';
+                if (wishlistEmpty) wishlistEmpty.style.display = 'none';
                 
                 let wishlistHTML = '';
                 wishlistItems.forEach((item, index) => {
@@ -3227,829 +3558,145 @@
             
             wishlistModal.classList.add('active');
             document.body.style.overflow = 'hidden';
-        }
-
-        function addToCartFromWishlist(index) {
+        };
+        
+        window.addToCartFromWishlist = function(index) {
             const product = wishlistItems[index];
             addToCart(product);
             showNotification(`${product.name} added to cart!`);
-        }
-
-        // Image Gallery Functionality
-        function openImageGallery(images, startIndex = 0) {
-            currentGalleryImages = images;
-            currentGalleryIndex = startIndex;
+        };
+        
+        // ==================== NOTIFICATION SYSTEM ====================
+        
+        function showNotification(message) {
+            const existingNotifications = document.querySelectorAll('.custom-notification');
+            existingNotifications.forEach(notif => notif.remove());
             
-            const galleryModal = document.getElementById('imageGalleryModal');
-            const galleryMainImage = document.getElementById('galleryMainImage');
-            const galleryThumbnails = document.getElementById('galleryThumbnails');
-            const galleryCounter = document.getElementById('galleryCounter');
-            
-            // Set main image
-            galleryMainImage.src = currentGalleryImages[currentGalleryIndex];
-            galleryMainImage.alt = `Product image ${currentGalleryIndex + 1}`;
-            
-            // Update counter
-            galleryCounter.textContent = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
-            
-            // Create thumbnails
-            galleryThumbnails.innerHTML = '';
-            currentGalleryImages.forEach((image, index) => {
-                const thumbnail = document.createElement('div');
-                thumbnail.className = `gallery-thumbnail ${index === currentGalleryIndex ? 'active' : ''}`;
-                thumbnail.innerHTML = `<img src="${image}" alt="Thumbnail ${index + 1}">`;
-                thumbnail.addEventListener('click', () => {
-                    currentGalleryIndex = index;
-                    updateGalleryImage();
-                });
-                galleryThumbnails.appendChild(thumbnail);
-            });
-            
-            // Open modal
-            galleryModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function updateGalleryImage() {
-            const galleryMainImage = document.getElementById('galleryMainImage');
-            const galleryThumbnails = document.getElementById('galleryThumbnails');
-            const galleryCounter = document.getElementById('galleryCounter');
-            
-            // Update main image
-            galleryMainImage.src = currentGalleryImages[currentGalleryIndex];
-            galleryMainImage.alt = `Product image ${currentGalleryIndex + 1}`;
-            
-            // Update counter
-            galleryCounter.textContent = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
-            
-            // Update active thumbnail
-            const thumbnails = galleryThumbnails.querySelectorAll('.gallery-thumbnail');
-            thumbnails.forEach((thumb, index) => {
-                thumb.classList.toggle('active', index === currentGalleryIndex);
-            });
-            
-            // Reset zoom state
-            galleryMainImage.classList.remove('zoomed');
-        }
-
-        function nextGalleryImage() {
-            currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
-            updateGalleryImage();
-        }
-
-        function prevGalleryImage() {
-            currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
-            updateGalleryImage();
-        }
-
-        function closeImageGallery() {
-            const galleryModal = document.getElementById('imageGalleryModal');
-            galleryModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            
-            // Reset zoom state
-            const galleryMainImage = document.getElementById('galleryMainImage');
-            galleryMainImage.classList.remove('zoomed');
-        }
-
-        function toggleZoom() {
-            const galleryMainImage = document.getElementById('galleryMainImage');
-            galleryMainImage.classList.toggle('zoomed');
-        }
-
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-
-        // PWA Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show install button after 5 seconds
-            setTimeout(showInstallPromotion, 5000);
-        });
-
-        function showInstallPromotion() {
-            // Check if we already showed the prompt
-            if (localStorage.getItem('installPromptShown')) return;
-            
-            const installBtn = document.createElement('div');
-            installBtn.innerHTML = `
-                <div style="position: fixed; bottom: 100px; right: 20px; background: var(--gold-yellow); color: var(--black); padding: 12px 16px; border-radius: 25px; cursor: pointer; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: 600; display: flex; align-items: center; gap: 8px; border: 2px solid var(--dark-gold);">
-                    <i class="fas fa-download"></i>
-                    Install App
-                    <button onclick="this.parentElement.remove(); localStorage.setItem('installPromptShown', 'true');" style="background: none; border: none; color: var(--black); cursor: pointer; margin-left: 5px;">×</button>
-                </div>
+            const notification = document.createElement('div');
+            notification.className = 'custom-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: var(--black);
+                color: white;
+                padding: 0.8rem 1.2rem;
+                border-radius: 20px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                z-index: 10000;
+                transform: translateX(400px);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                max-width: 280px;
+                font-weight: 600;
+                font-size: 0.85rem;
             `;
+            notification.textContent = message;
             
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response: ${outcome}`);
-                deferredPrompt = null;
-                installBtn.remove();
-                localStorage.setItem('installPromptShown', 'true');
-            });
+            document.body.appendChild(notification);
             
-            document.body.appendChild(installBtn);
-        }
-
-        // Your Google Apps Script URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw8UI6-xwor3TlH9KESJHaj1Dxzo5MtfbjX-EWnApN0dEiEM66_CH1egA0dTp1E_zeNAA/exec';
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize franchise system first
-            initializeFranchiseSystem();
-
-            // Initialize Firebase
-            initFirebase();
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
             
-            // Initialize wishlist UI
-            updateWishlistUI();
-
-            // Enhanced Bottom Navigation Functionality
-            const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
-            const navIndicator = document.getElementById('navIndicator');
-            
-            function updateNavIndicator(activeItem) {
-                const itemRect = activeItem.getBoundingClientRect();
-                const containerRect = activeItem.parentElement.getBoundingClientRect();
-                
-                navIndicator.style.left = `${itemRect.left - containerRect.left + (itemRect.width / 2) - 10}px`;
-            }
-            
-            // Initialize indicator position
-            const activeNavItem = document.querySelector('.bottom-nav-item.active');
-            if (activeNavItem) {
-                updateNavIndicator(activeNavItem);
-            }
-            
-            // Add click handlers for bottom nav items
-            bottomNavItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Update active state
-                    bottomNavItems.forEach(navItem => navItem.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update indicator position
-                    updateNavIndicator(this);
-                    
-                    // Handle navigation
-                    const navTarget = this.getAttribute('data-nav');
-                    switch(navTarget) {
-                        case 'home':
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            break;
-                        case 'products':
-                            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
-                            break;
-                        case 'categories':
-                            // Scroll to category filter
-                            document.querySelector('.category-filter').scrollIntoView({ behavior: 'smooth' });
-                            break;
-                        case 'wishlist':
-                            openWishlistModal();
-                            break;
-                        case 'cart':
-                            document.getElementById('cartBtn').click();
-                            break;
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
                     }
-                });
+                }, 300);
+            }, 3000);
+        }
+        
+        // ==================== PRODUCT FILTERING ====================
+        
+        function filterProducts(category) {
+            const productCards = document.querySelectorAll('.product-card[data-category]');
+            let hasVisibleProducts = false;
+        
+            productCards.forEach(card => {
+                const productCategory = card.getAttribute('data-category');
+                if (category === 'all' || productCategory === category) {
+                    card.style.display = 'flex';
+                    hasVisibleProducts = true;
+                } else {
+                    card.style.display = 'none';
+                }
             });
-
-            // Enhanced Hamburger Menu Functionality
+        
+            if (!hasVisibleProducts && category !== 'all') {
+                showNotification(`No ${category} products found`);
+            }
+        }
+        
+        function filterProductsBySearch(searchTerm) {
+            const productCards = document.querySelectorAll('.product-card[data-category]');
+            let hasVisibleProducts = false;
+            
+            productCards.forEach(card => {
+                const productTitle = card.querySelector('.product-title').textContent.toLowerCase();
+                const productDescription = card.querySelector('.product-meta') ? card.querySelector('.product-meta').textContent.toLowerCase() : '';
+                
+                if (searchTerm === '' || 
+                    productTitle.includes(searchTerm.toLowerCase()) || 
+                    productDescription.includes(searchTerm.toLowerCase())) {
+                    card.style.display = 'flex';
+                    hasVisibleProducts = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (!hasVisibleProducts && searchTerm !== '') {
+                showNotification(`No products found for "${searchTerm}"`);
+            }
+        }
+        
+        // ==================== INITIALIZATION ====================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing DSOG STORES...');
+            
+            // Initialize systems
+            initFirebase();
+            initializeFranchiseSystem();
+            updateWishlistUI();
+            updateCartUI();
+            
+            // Load products
+            loadProductsWithCache();
+            
+            // Initialize event listeners
+            initializeEventListeners();
+            
+            console.log('✅ DSOG STORES initialized successfully');
+        });
+        
+        // Initialize all event listeners
+        function initializeEventListeners() {
+            // Mobile menu
             const hamburgerMenu = document.getElementById('hamburgerMenu');
             const mainNav = document.getElementById('mainNav');
             const menuBackdrop = document.getElementById('menuBackdrop');
-            const body = document.body;
-
-            function toggleMobileMenu() {
-                const isActive = hamburgerMenu.classList.contains('active');
-                
-                hamburgerMenu.classList.toggle('active');
-                mainNav.classList.toggle('active');
-                menuBackdrop.classList.toggle('active');
-                body.style.overflow = isActive ? 'auto' : 'hidden';
+            
+            if (hamburgerMenu && mainNav) {
+                hamburgerMenu.addEventListener('click', function() {
+                    const isActive = this.classList.contains('active');
+                    this.classList.toggle('active');
+                    mainNav.classList.toggle('active');
+                    if (menuBackdrop) menuBackdrop.classList.toggle('active');
+                    document.body.style.overflow = isActive ? 'auto' : 'hidden';
+                });
             }
-
-            function closeMobileMenu() {
-                hamburgerMenu.classList.remove('active');
-                mainNav.classList.remove('active');
-                menuBackdrop.classList.remove('active');
-                body.style.overflow = 'auto';
-            }
-
-            hamburgerMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-                toggleMobileMenu();
-            });
-
-            menuBackdrop.addEventListener('click', closeMobileMenu);
-
-            // Close menu when clicking on nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', closeMobileMenu);
-            });
-
-            // Close menu on escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeMobileMenu();
-                }
-            });
-
-            // Search Bar Functionality
+            
+            // Search functionality
             const searchBarInput = document.getElementById('searchBarInput');
-            const searchBarIcon = document.getElementById('searchBarIcon');
-            
-            searchBarIcon.addEventListener('click', function() {
-                filterProductsBySearch(searchBarInput.value);
-            });
-            
-            searchBarInput.addEventListener('input', function() {
-                filterProductsBySearch(this.value);
-            });
-            
-            searchBarInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
+            if (searchBarInput) {
+                searchBarInput.addEventListener('input', function() {
                     filterProductsBySearch(this.value);
-                }
-            });
-            
-            function filterProductsBySearch(searchTerm) {
-                const productCards = document.querySelectorAll('.product-card[data-category]');
-                let hasVisibleProducts = false;
-                
-                productCards.forEach(card => {
-                    const productTitle = card.querySelector('.product-title').textContent.toLowerCase();
-                    const productDescription = card.querySelector('.product-meta') ? card.querySelector('.product-meta').textContent.toLowerCase() : '';
-                    
-                    if (searchTerm === '' || 
-                        productTitle.includes(searchTerm.toLowerCase()) || 
-                        productDescription.includes(searchTerm.toLowerCase())) {
-                        card.style.display = 'flex';
-                        hasVisibleProducts = true;
-                    } else {
-                        card.style.display = 'none';
-                    }
                 });
-                
-                if (!hasVisibleProducts && searchTerm !== '') {
-                    showNotification(`No products found for "${searchTerm}"`);
-                }
             }
-
-            // Initialize hero swiper
-            const heroSwiper = new Swiper('.heroSwiper', {
-                loop: true,
-                autoplay: {
-                    delay: 6000,
-                },
-                effect: 'fade',
-                speed: 1000,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-            });
-
-            // Cart functionality
-            let cartItems = JSON.parse(localStorage.getItem('dsogstores_cart')) || [];
-            const cartBtn = document.getElementById('cartBtn');
-            const cartModal = document.getElementById('cartModal');
-            const closeCartBtn = document.getElementById('closeCart');
-            const cartCount = document.getElementById('cartCount');
-            const cartContent = document.getElementById('cartContent');
-            const cartEmpty = document.getElementById('cartEmpty');
-            const cartTotal = document.getElementById('cartTotal');
-            const checkoutBtn = document.getElementById('checkoutBtn');
             
-            // Bottom nav cart elements
-            const bottomCartBtn = document.getElementById('bottomCartBtn');
-            const bottomCartCount = document.getElementById('bottomCartCount');
-
-            // Wishlist modal elements
-            const wishlistBtn = document.getElementById('wishlistBtn');
-            const wishlistModal = document.getElementById('wishlistModal');
-            const closeWishlistBtn = document.getElementById('closeWishlist');
-            const bottomWishlistBtn = document.getElementById('bottomWishlistBtn');
-
-            // Order modal elements
-            const orderModal = document.getElementById('orderModal');
-            const closeOrderModal = document.getElementById('closeOrderModal');
-            const orderItemsContainer = document.getElementById('orderItemsContainer');
-            const submitOrderBtn = document.getElementById('submitOrderBtn');
-            const whatsappOrderBtn = document.getElementById('whatsappOrderBtn');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-
-            // Confirmation modal elements
-            const confirmationModal = document.getElementById('confirmationModal');
-            const confirmationOrderNumber = document.getElementById('confirmationOrderNumber');
-            const confirmationTotal = document.getElementById('confirmationTotal');
-            const continueShoppingBtn = document.getElementById('continueShoppingBtn');
-            const viewOrderBtn = document.getElementById('viewOrderBtn');
-
-            // Product View Modal elements
-            const productViewModal = document.getElementById('productViewModal');
-            const productViewClose = document.getElementById('productViewClose');
-            const productViewImage = document.getElementById('productViewImage');
-            const productViewTitle = document.getElementById('productViewTitle');
-            const productViewPrice = document.getElementById('productViewPrice');
-            const productViewCategory = document.getElementById('productViewCategory');
-            const productViewDescription = document.getElementById('productViewDescription');
-            const productViewAddToCart = document.getElementById('productViewAddToCart');
-            const productViewWishlist = document.getElementById('productViewWishlist');
-
-            // Image Gallery Modal elements
-            const imageGalleryModal = document.getElementById('imageGalleryModal');
-            const galleryClose = document.getElementById('galleryClose');
-            const galleryPrev = document.getElementById('galleryPrev');
-            const galleryNext = document.getElementById('galleryNext');
-            const galleryMainImage = document.getElementById('galleryMainImage');
-
-            // Current product being viewed
-            let currentProduct = null;
-
-            function updateCartUI() {
-                const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-                cartCount.textContent = totalItems;
-                bottomCartCount.textContent = totalItems;
-                
-                if (cartItems.length === 0) {
-                    cartEmpty.style.display = 'flex';
-                    cartContent.innerHTML = '';
-                    cartContent.appendChild(cartEmpty);
-                    cartTotal.textContent = 'KSh 0.00';
-                    checkoutBtn.disabled = true;
-                    return;
-                }
-                
-                cartEmpty.style.display = 'none';
-                checkoutBtn.disabled = false;
-                
-                let cartHTML = '';
-                let total = 0;
-                
-                cartItems.forEach((item, index) => {
-                    const itemTotal = item.basePrice * item.quantity;
-                    total += itemTotal;
-                    
-                    cartHTML += `
-                        <div class="cart-item">
-                            <div class="cart-item-image">
-                                <img src="${item.image}" alt="${item.name}" loading="lazy">
-                            </div>
-                            <div class="cart-item-details">
-                                <h4 class="cart-item-title">${item.name}</h4>
-                                <div class="cart-item-price">KSh ${item.basePrice}</div>
-                                <div class="cart-item-quantity">
-                                    <button class="quantity-btn" onclick="updateCartItemQuantity(${index}, ${item.quantity - 1})">-</button>
-                                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateCartItemQuantity(${index}, parseInt(this.value) || 1)">
-                                    <button class="quantity-btn" onclick="updateCartItemQuantity(${index}, ${item.quantity + 1})">+</button>
-                                </div>
-                                <button class="cart-item-remove" onclick="removeFromCart(${index})">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                cartContent.innerHTML = cartHTML;
-                cartTotal.textContent = `KSh ${total.toFixed(2)}`;
-            }
-
-            // Cart event listeners
-            cartBtn.addEventListener('click', function() {
-                cartModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            bottomCartBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                cartModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            closeCartBtn.addEventListener('click', function() {
-                cartModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-            
-            cartModal.addEventListener('click', function(e) {
-                if (e.target === cartModal) {
-                    cartModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // Wishlist event listeners
-            wishlistBtn.addEventListener('click', function() {
-                openWishlistModal();
-            });
-            
-            bottomWishlistBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                openWishlistModal();
-            });
-            
-            closeWishlistBtn.addEventListener('click', function() {
-                wishlistModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-            
-            wishlistModal.addEventListener('click', function(e) {
-                if (e.target === wishlistModal) {
-                    wishlistModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // Continue shopping button in wishlist
-            document.getElementById('continueShoppingBtn').addEventListener('click', function() {
-                wishlistModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-
-            checkoutBtn.addEventListener('click', function() {
-                if (cartItems.length === 0) {
-                    showNotification('Your cart is empty. Add products before checkout.');
-                    return;
-                }
-                
-                openOrderModal();
-                cartModal.classList.remove('active');
-            });
-
-            // Order modal functionality
-            function openOrderModal() {
-                // Populate order items
-                orderItemsContainer.innerHTML = '';
-                let total = 0;
-                
-                cartItems.forEach((item, index) => {
-                    const itemTotal = item.basePrice * item.quantity;
-                    total += itemTotal;
-                    
-                    orderItemsContainer.innerHTML += `
-                        <div class="order-item">
-                            <div class="order-item-image">
-                                <img src="${item.image}" alt="${item.name}" loading="lazy">
-                            </div>
-                            <div class="order-item-details">
-                                <h4 class="order-item-title">${item.name}</h4>
-                                <div class="order-item-price">KSh ${item.basePrice} × ${item.quantity} = KSh ${itemTotal.toFixed(2)}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                // Check if customer info exists in localStorage
-                const customerInfo = JSON.parse(localStorage.getItem('dsogstores_customer')) || {};
-                if (customerInfo.name) {
-                    document.getElementById('customerName').value = customerInfo.name;
-                    document.getElementById('email').value = customerInfo.email;
-                    document.getElementById('phone').value = customerInfo.phone;
-                    document.getElementById('deliveryAddress').value = customerInfo.address;
-                }
-                
-                // Hide messages
-                successMessage.style.display = 'none';
-                errorMessage.style.display = 'none';
-                
-                orderModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            closeOrderModal.addEventListener('click', function() {
-                orderModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-
-            orderModal.addEventListener('click', function(e) {
-                if (e.target === orderModal) {
-                    orderModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // WhatsApp Order Functionality - UPDATED FOR FRANCHISE
-            whatsappOrderBtn.addEventListener('click', function() {
-                const customerName = document.getElementById('customerName').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-                const deliveryAddress = document.getElementById('deliveryAddress').value;
-                const specialInstructions = document.getElementById('specialInstructions').value;
-                
-                // Validate required fields
-                if (!customerName || !email || !phone || !deliveryAddress) {
-                    showNotification('Please fill in all required fields');
-                    return;
-                }
-                
-                // Save customer info for future orders
-                localStorage.setItem('dsogstores_customer', JSON.stringify({
-                    name: customerName,
-                    email: email,
-                    phone: phone,
-                    address: deliveryAddress
-                }));
-                
-                // Generate WhatsApp message with franchise info
-                let whatsappMessage = `*NEW ORDER - ${currentFranchisee.name}*%0A%0A`;
-                whatsappMessage += `*Customer Information:*%0A`;
-                whatsappMessage += `Name: ${customerName}%0A`;
-                whatsappMessage += `Email: ${email}%0A`;
-                whatsappMessage += `Phone: ${phone}%0A`;
-                whatsappMessage += `Address: ${deliveryAddress}%0A`;
-                whatsappMessage += `Franchise: ${currentFranchisee.name}%0A`;
-                
-                if (specialInstructions) {
-                    whatsappMessage += `Special Instructions: ${specialInstructions}%0A`;
-                }
-                
-                whatsappMessage += `%0A*Order Summary:*%0A`;
-                
-                let total = 0;
-                cartItems.forEach((item, index) => {
-                    const itemTotal = item.basePrice * item.quantity;
-                    total += itemTotal;
-                    whatsappMessage += `${item.quantity}x ${item.name} - KSh ${item.basePrice} each = KSh ${itemTotal.toFixed(2)}%0A`;
-                });
-                
-                whatsappMessage += `%0A*Total: KSh ${total.toFixed(2)}*%0A%0A`;
-                whatsappMessage += `Order Date: ${new Date().toLocaleDateString()}`;
-                
-                // Track the order with franchise info
-                cartItems.forEach(item => {
-                    trackOrderAttempt(item, currentFranchisee);
-                });
-                
-                // Open WhatsApp with pre-filled message
-                const whatsappUrl = `https://wa.me/${currentFranchisee.whatsapp}?text=${whatsappMessage}`;
-                window.open(whatsappUrl, '_blank');
-                
-                // Show confirmation
-                showNotification(`Opening WhatsApp to complete your order with ${currentFranchisee.name}`);
-                
-                // Close order modal
-                orderModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                
-                // Clear cart after successful order
-                cartItems = [];
-                localStorage.removeItem('dsogstores_cart');
-                updateCartUI();
-            });
-
-            // Confirmation modal functionality
-            continueShoppingBtn.addEventListener('click', function() {
-                confirmationModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-
-            viewOrderBtn.addEventListener('click', function() {
-                confirmationModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                showNotification('Order details would be displayed here');
-            });
-
-            confirmationModal.addEventListener('click', function(e) {
-                if (e.target === confirmationModal) {
-                    confirmationModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // Product View Modal functionality
-            function openProductView(product) {
-                currentProduct = product;
-                
-                // Populate product view modal with product data
-                productViewImage.src = product.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
-                productViewTitle.textContent = product.name;
-                productViewPrice.textContent = `KSh ${product.basePrice}`;
-                productViewCategory.textContent = product.category;
-                productViewDescription.textContent = product.description || 'Premium luxury product with exceptional quality and craftsmanship.';
-                
-                // Update wishlist button state
-                if (isInWishlist(product.id)) {
-                    productViewWishlist.classList.add('active');
-                    productViewWishlist.innerHTML = '<i class="fas fa-heart" style="color: var(--white);"></i>';
-                } else {
-                    productViewWishlist.classList.remove('active');
-                    productViewWishlist.innerHTML = '<i class="fas fa-heart"></i>';
-                }
-                
-                // Set up add to cart button
-                productViewAddToCart.onclick = function() {
-                    addToCart(product);
-                    productViewModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                    showNotification(`${product.name} added to cart!`);
-                };
-                
-                // Set up wishlist button
-                productViewWishlist.onclick = function() {
-                    const added = addToWishlist(product);
-                    
-                    if (added) {
-                        productViewWishlist.classList.add('active');
-                        productViewWishlist.innerHTML = '<i class="fas fa-heart" style="color: var(--white);"></i>';
-                    } else {
-                        productViewWishlist.classList.remove('active');
-                        productViewWishlist.innerHTML = '<i class="fas fa-heart"></i>';
-                    }
-                };
-                
-                // Open the modal
-                productViewModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            productViewClose.addEventListener('click', function() {
-                productViewModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-
-            productViewModal.addEventListener('click', function(e) {
-                if (e.target === productViewModal) {
-                    productViewModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // Image Gallery Modal functionality
-            galleryClose.addEventListener('click', closeImageGallery);
-            
-            galleryPrev.addEventListener('click', prevGalleryImage);
-            
-            galleryNext.addEventListener('click', nextGalleryImage);
-            
-            galleryMainImage.addEventListener('click', toggleZoom);
-            
-            imageGalleryModal.addEventListener('click', function(e) {
-                if (e.target === imageGalleryModal) {
-                    closeImageGallery();
-                }
-            });
-            
-            // Close modal on escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    if (productViewModal.classList.contains('active')) {
-                        productViewModal.classList.remove('active');
-                        document.body.style.overflow = 'auto';
-                    }
-                    if (imageGalleryModal.classList.contains('active')) {
-                        closeImageGallery();
-                    }
-                }
-                
-                // Keyboard navigation for image gallery
-                if (imageGalleryModal.classList.contains('active')) {
-                    if (e.key === 'ArrowLeft') {
-                        prevGalleryImage();
-                    } else if (e.key === 'ArrowRight') {
-                        nextGalleryImage();
-                    }
-                }
-            });
-
-            // Make cart functions globally available
-            window.updateCartItemQuantity = function(index, newQuantity) {
-                if (newQuantity < 1) {
-                    removeFromCart(index);
-                    return;
-                }
-                
-                cartItems[index].quantity = newQuantity;
-                localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
-                updateCartUI();
-            };
-
-            window.removeFromCart = function(index) {
-                cartItems.splice(index, 1);
-                localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
-                updateCartUI();
-                showNotification('Item removed from cart');
-            };
-
-            window.addToCartFromWishlist = function(index) {
-                const product = wishlistItems[index];
-                addToCart(product);
-                showNotification(`${product.name} added to cart!`);
-            };
-
-            // Initialize cart UI
-            updateCartUI();
-
-            // Order submission - FIXED DATA STRUCTURE
-            submitOrderBtn.addEventListener('click', async function() {
-                const customerName = document.getElementById('customerName').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-                const deliveryAddress = document.getElementById('deliveryAddress').value;
-                const specialInstructions = document.getElementById('specialInstructions').value;
-                
-                // Validate required fields
-                if (!customerName || !email || !phone || !deliveryAddress) {
-                    showNotification('Please fill in all required fields');
-                    return;
-                }
-                
-                // Save customer info for future orders
-                localStorage.setItem('dsogstores_customer', JSON.stringify({
-                    name: customerName,
-                    email: email,
-                    phone: phone,
-                    address: deliveryAddress
-                }));
-                
-                try {
-                    submitOrderBtn.disabled = true;
-                    submitOrderBtn.innerHTML = '<div class="loading"></div> Processing...';
-                    
-                    // Include franchise information in order data
-                    const orderData = {
-                        action: 'submitOrder',
-                        customerName: customerName,
-                        email: email,
-                        phone: phone,
-                        deliveryAddress: deliveryAddress,
-                        specialInstructions: specialInstructions,
-                        franchisee: currentFranchisee.name,
-                        franchiseeLocation: currentFranchisee.location,
-                        items: cartItems
-                    };
-                    
-                    // FIXED: Add mode: 'no-cors' like WorkFit Store
-                    const response = await fetch(scriptUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(orderData),
-                        mode: 'no-cors'  // This prevents CORS issues
-                    });
-                    
-                    // Since we're using no-cors mode, we can't access the response directly
-                    // So we'll assume success if we get this far
-                    
-                    // Calculate total for confirmation
-                    const total = cartItems.reduce((sum, item) => sum + (item.basePrice * item.quantity), 0);
-                    
-                    // Update confirmation modal with order details
-                    confirmationOrderNumber.textContent = `DSOG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-                    confirmationTotal.textContent = `KSh ${total.toFixed(2)}`;
-                    
-                    // Track all orders with franchise info
-                    cartItems.forEach(item => {
-                        trackOrderAttempt(item, currentFranchisee);
-                    });
-                    
-                    // Close order modal and open confirmation modal
-                    orderModal.classList.remove('active');
-                    confirmationModal.classList.add('active');
-                    
-                    // Clear cart
-                    cartItems = [];
-                    localStorage.removeItem('dsogstores_cart');
-                    updateCartUI();
-                    
-                    showNotification('Order placed successfully!');
-                    
-                } catch (error) {
-                    console.error('Order submission error:', error);
-                    errorText.textContent = 'Failed to submit order. Please try again.';
-                    errorMessage.style.display = 'flex';
-                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } finally {
-                    submitOrderBtn.disabled = false;
-                    submitOrderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Complete Order';
-                }
-            });
-
             // Category filtering
             const categoryFilter = document.getElementById('categoryFilter');
             if (categoryFilter) {
@@ -4065,434 +3712,116 @@
                     }
                 });
             }
-
-            function filterProducts(category) {
-                const productCards = document.querySelectorAll('.product-card[data-category]');
-                let hasVisibleProducts = false;
-
-                productCards.forEach(card => {
-                    const productCategory = card.getAttribute('data-category');
-                    if (category === 'all' || productCategory === category) {
-                        card.style.display = 'flex';
-                        hasVisibleProducts = true;
-                    } else {
-                        card.style.display = 'none';
-                    }
+            
+            // Cart modal
+            const cartBtn = document.getElementById('cartBtn');
+            const cartModal = document.getElementById('cartModal');
+            const closeCartBtn = document.getElementById('closeCart');
+            
+            if (cartBtn && cartModal) {
+                cartBtn.addEventListener('click', function() {
+                    cartModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 });
-
-                if (!hasVisibleProducts) {
-                    showNotification(`No ${category === 'all' ? '' : category + ' '}products found`);
-                }
-            }
-
-            // Load products from backend
-            async function loadProducts() {
-                try {
-                    const response = await fetch(`${scriptUrl}?action=getProducts`);
-                    
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        displayProducts(result.data);
-                    } else {
-                        throw new Error(result.message || 'Failed to load products');
-                    }
-                    
-                } catch (error) {
-                    console.error('Error loading products:', error);
-                    // Fallback to sample products if backend fails
-                    loadSampleProducts();
-                }
-            }
-
-            // Sample product data for fallback
-            const sampleProducts = [
-                {
-                    id: 'DSOG-CL001',
-                    name: 'Luxury Cashmere Sweater',
-                    category: 'clothing',
-                    basePrice: 89.99,
-                    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Premium cashmere sweater with elegant ribbed detailing',
-                    images: [
-                        'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                },
-                {
-                    id: 'DSOG-CL002',
-                    name: 'Silk Evening Robe',
-                    category: 'clothing',
-                    basePrice: 125.50,
-                    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Luxurious silk robe with satin trim',
-                    images: [
-                        'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                },
-                {
-                    id: 'DSOG-ART001',
-                    name: 'Abstract Canvas Art',
-                    category: 'art',
-                    basePrice: 245.75,
-                    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Large abstract painting on canvas',
-                    images: [
-                        'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                },
-                {
-                    id: 'DSOG-ART002',
-                    name: 'Sculptural Vase Set',
-                    category: 'art',
-                    basePrice: 89.99,
-                    image: 'https://images.unsplash.com/photo-1578506750688-8cd171a4b171?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Minimalist ceramic vase set',
-                    images: [
-                        'https://images.unsplash.com/photo-1578506750688-8cd171a4b171?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1578506750688-8cd171a4b171?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                },
-                {
-                    id: 'DSOG-HG001',
-                    name: 'Marble Serving Tray',
-                    category: 'home-goods',
-                    basePrice: 45.75,
-                    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Elegant marble serving tray with gold handles',
-                    images: [
-                        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                },
-                {
-                    id: 'DSOG-HG002',
-                    name: 'Velvet Throw Pillows',
-                    category: 'home-goods',
-                    basePrice: 35.99,
-                    image: 'https://images.unsplash.com/photo-1582582621959-48d27397dc69?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    description: 'Premium velvet throw pillows',
-                    images: [
-                        'https://images.unsplash.com/photo-1582582621959-48d27397dc69?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-                    ]
-                }
-            ];
-
-            function loadSampleProducts() {
-                displayProducts(sampleProducts);
-            }
-
-            function displayProducts(products) {
-                const container = document.getElementById('productListingsContainer');
-                if (container) {
-                    container.innerHTML = '';
-                    
-                    // Store products globally for franchise updates
-                    window.currentProducts = products;
-                    window.productElements = [];
-                    
-                    products.forEach(product => {
-                        const productCard = document.createElement('div');
-                        productCard.className = 'product-card';
-                        productCard.setAttribute('data-category', product.category);
-                        
-                        // Check if product is in wishlist
-                        const isWishlisted = isInWishlist(product.id);
-                        
-                        // Get product images - use the images array if available, otherwise use single image
-                        const productImages = product.images || [product.image];
-                        
-                        productCard.innerHTML = `
-                            <div class="product-image-container">
-                                <div class="product-image-slider">
-                                    <div class="product-image-slide">
-                                        <img src="${productImages[0]}" alt="${product.name}" class="product-main-image">
-                                    </div>
-                                </div>
-                                <span class="product-badge">${product.category}</span>
-                                <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}'>
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="product-content">
-                                <h3 class="product-title">${product.name}</h3>
-                                <div class="product-price">KSh ${product.basePrice}</div>
-                                <div class="product-meta">
-                                    <span><i class="fas fa-shipping-fast"></i> Free Delivery</span>
-                                </div>
-                                <div class="product-footer">
-                                    <button class="add-to-cart-btn" data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}'>
-                                        <i class="fas fa-shopping-bag"></i> Order via WhatsApp
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        
-                        container.appendChild(productCard);
-                        window.productElements.push(productCard);
-                        
-                        // Add click event to open product view modal
-                        productCard.addEventListener('click', function(e) {
-                            // Don't open modal if clicking the add to cart button or wishlist button
-                            if (!e.target.closest('.add-to-cart-btn') && !e.target.closest('.wishlist-btn')) {
-                                openProductView(product);
-                            }
-                        });
-                        
-                        // Add image click event to open gallery
-                        const productImage = productCard.querySelector('.product-main-image');
-                        productImage.addEventListener('click', function(e) {
-                            e.stopPropagation(); // Prevent triggering the product card click
-                            openImageGallery(productImages);
-                        });
-                        
-                        // Add to cart functionality - UPDATED FOR FRANCHISE
-                        const addToCartBtn = productCard.querySelector('.add-to-cart-btn');
-                        addToCartBtn.addEventListener('click', function(e) {
-                            e.stopPropagation(); // Prevent triggering the product card click
-                            const productData = JSON.parse(this.getAttribute('data-product'));
-                            orderViaWhatsApp(productData);
-                        });
-                        
-                        // Wishlist button functionality
-                        const wishlistBtn = productCard.querySelector('.wishlist-btn');
-                        wishlistBtn.addEventListener('click', function(e) {
-                            e.stopPropagation(); // Prevent triggering the product card click
-                            const productData = JSON.parse(this.getAttribute('data-product'));
-                            const added = addToWishlist(productData);
-                            
-                            if (added) {
-                                this.classList.add('active');
-                                this.innerHTML = '<i class="fas fa-heart"></i>';
-                            } else {
-                                this.classList.remove('active');
-                                this.innerHTML = '<i class="fas fa-heart"></i>';
-                            }
-                        });
-                    });
-
-                    // Update WhatsApp buttons with current franchisee
-                    updateWhatsAppButtons();
-                }
-            }
-
-            // Add to cart function
-            function addToCart(product) {
-                const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
-                
-                if (existingItemIndex !== -1) {
-                    cartItems[existingItemIndex].quantity += 1;
-                } else {
-                    cartItems.push({
-                        ...product,
-                        quantity: 1
-                    });
-                }
-                
-                localStorage.setItem('dsogstores_cart', JSON.stringify(cartItems));
-                updateCartUI();
-                showNotification(`${product.name} added to cart!`);
-            }
-
-            // ==================== FIREBASE INTEGRATION ====================
-
-            // Firebase initialization function
-            function initFirebase() {
-                console.log('Firebase initialized for DSOG STORES');
-                testFirebaseConnection();
             }
             
-            // Test Firebase connection
-            async function testFirebaseConnection() {
-                try {
-                    await db.collection('connectionTests').doc('dsog-stores').set({
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'connected',
-                        store: 'DSOG STORES',
-                        franchise: currentFranchisee ? currentFranchisee.name : 'unknown'
-                    });
-                    console.log('✅ Firebase connection successful');
-                    return true;
-                } catch (error) {
-                    console.log('❌ Firebase connection failed:', error.message);
-                    return false;
-                }
+            if (closeCartBtn && cartModal) {
+                closeCartBtn.addEventListener('click', function() {
+                    cartModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
             }
             
-            // Enhanced product loading with Firebase cache
-            async function loadProductsWithCache() {
-                console.log('🔄 Loading products with Firebase cache...');
+            // Wishlist modal
+            const wishlistBtn = document.getElementById('wishlistBtn');
+            const wishlistModal = document.getElementById('wishlistModal');
+            const closeWishlistBtn = document.getElementById('closeWishlist');
+            
+            if (wishlistBtn && wishlistModal) {
+                wishlistBtn.addEventListener('click', function() {
+                    openWishlistModal();
+                });
+            }
+            
+            if (closeWishlistBtn && wishlistModal) {
+                closeWishlistBtn.addEventListener('click', function() {
+                    wishlistModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+            
+            // Bottom navigation
+            const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+            const navIndicator = document.getElementById('navIndicator');
+            
+            if (bottomNavItems.length > 0 && navIndicator) {
+                function updateNavIndicator(activeItem) {
+                    const itemRect = activeItem.getBoundingClientRect();
+                    const containerRect = activeItem.parentElement.getBoundingClientRect();
+                    navIndicator.style.left = `${itemRect.left - containerRect.left + (itemRect.width / 2) - 10}px`;
+                }
                 
-                try {
-                    // FIRST: Try Google Sheets (your current system)
-                    const response = await fetch(`${scriptUrl}?action=getProducts`);
-                    
-                    if (!response.ok) throw new Error('Sheets response not ok');
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        const products = result.data;
-                        console.log(`✅ Loaded ${products.length} products from Google Sheets`);
-                        displayProducts(products);
+                const activeNavItem = document.querySelector('.bottom-nav-item.active');
+                if (activeNavItem) {
+                    updateNavIndicator(activeNavItem);
+                }
+                
+                bottomNavItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
                         
-                        // SECONDARY: Cache products to Firebase for real-time features
-                        cacheProductsToFirebase(products);
+                        bottomNavItems.forEach(navItem => navItem.classList.remove('active'));
+                        this.classList.add('active');
                         
-                        return products;
-                    } else {
-                        throw new Error(result.message);
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Google Sheets load failed:', error);
-                    
-                    // FALLBACK: Try Firebase cache
-                    try {
-                        console.log('🔄 Trying Firebase cache...');
-                        const cachedProducts = await loadProductsFromFirebaseCache();
-                        if (cachedProducts.length > 0) {
-                            console.log(`✅ Loaded ${cachedProducts.length} products from Firebase cache`);
-                            displayProducts(cachedProducts);
-                            showNotification('Products loaded from cache');
-                            return cachedProducts;
-                        } else {
-                            throw new Error('No cached products found');
+                        updateNavIndicator(this);
+                        
+                        const navTarget = this.getAttribute('data-nav');
+                        switch(navTarget) {
+                            case 'home':
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                break;
+                            case 'products':
+                                document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                                break;
+                            case 'categories':
+                                document.querySelector('.category-filter').scrollIntoView({ behavior: 'smooth' });
+                                break;
+                            case 'wishlist':
+                                openWishlistModal();
+                                break;
+                            case 'cart':
+                                document.getElementById('cartBtn').click();
+                                break;
                         }
-                    } catch (firebaseError) {
-                        console.error('❌ Firebase cache also failed:', firebaseError);
-                    }
-                    
-                    // FINAL FALLBACK: Use sample products
-                    console.log('🔄 Using sample products as final fallback');
-                    loadSampleProducts();
-                }
-            }
-            
-            // Cache products to Firebase (non-blocking)
-            async function cacheProductsToFirebase(products) {
-                try {
-                    console.log('💾 Caching products to Firebase...');
-                    const batch = db.batch();
-                    
-                    products.forEach(product => {
-                        const productRef = db.collection('productsCache').doc(product.id);
-                        batch.set(productRef, {
-                            ...product,
-                            lastSynced: firebase.firestore.FieldValue.serverTimestamp(),
-                            source: 'google_sheets',
-                            isActive: true,
-                            franchise: currentFranchisee ? currentFranchisee.name : 'unknown'
-                        }, { merge: true });
                     });
-                    
-                    await batch.commit();
-                    console.log(`✅ Successfully cached ${products.length} products to Firebase`);
-                } catch (error) {
-                    console.log('⚠️ Firebase cache failed (non-critical):', error);
-                }
+                });
             }
-            
-            // Load from Firebase cache
-            async function loadProductsFromFirebaseCache() {
-                try {
-                    const snapshot = await db.collection('productsCache')
-                        .where('isActive', '==', true)
-                        .limit(50)
-                        .get();
-                    
-                    const products = snapshot.docs.map(doc => {
-                        const data = doc.data();
-                        return {
-                            id: data.id,
-                            name: data.name,
-                            category: data.category,
-                            basePrice: data.basePrice,
-                            quantity: data.quantity,
-                            description: data.description,
-                            image: data.image,
-                            images: data.images || [data.image],
-                            availableColors: data.availableColors,
-                            availableMaterials: data.availableMaterials,
-                            availableSizes: data.availableSizes,
-                            collection: data.collection
-                        };
-                    });
-                    
-                    return products;
-                } catch (error) {
-                    console.error('❌ Error loading from Firebase cache:', error);
-                    throw error;
-                }
-            }
-
-            // ==================== END FIREBASE INTEGRATION ====================
-
-            // Load products on page load
-            loadProductsWithCache();
-
-            // Notification system
-            function showNotification(message) {
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 90px;
-                    right: 20px;
-                    background: var(--black);
-                    color: white;
-                    padding: 0.8rem 1.2rem;
-                    border-radius: 20px;
-                    box-shadow: var(--shadow-lg);
-                    z-index: 10000;
-                    transform: translateX(400px);
-                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    max-width: 280px;
-                    font-weight: 600;
-                    font-size: 0.85rem;
-                `;
-                notification.textContent = message;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 100);
-                
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(400px)';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-
-            // Make functions globally available
-            window.selectFranchisee = selectFranchisee;
-            window.showLocationSelector = showLocationSelector;
-            window.orderViaWhatsApp = orderViaWhatsApp;
-            window.addToWishlist = addToWishlist;
-            window.removeFromWishlist = removeFromWishlist;
-            window.isInWishlist = isInWishlist;
-            window.openWishlistModal = openWishlistModal;
-            window.addToCartFromWishlist = addToCartFromWishlist;
-            window.addToCart = addToCart;
-            window.openProductView = openProductView;
-            window.openImageGallery = openImageGallery;
-            window.closeImageGallery = closeImageGallery;
-            window.nextGalleryImage = nextGalleryImage;
-            window.prevGalleryImage = prevGalleryImage;
-            window.toggleZoom = toggleZoom;
-        });
+        }
+        
+        // ==================== GLOBAL FUNCTIONS ====================
+        
+        // Make functions globally available
+        window.selectFranchisee = selectFranchisee;
+        window.showLocationSelector = showLocationSelector;
+        window.orderViaWhatsApp = orderViaWhatsApp;
+        window.addToWishlist = addToWishlist;
+        window.removeFromWishlist = removeFromWishlist;
+        window.isInWishlist = isInWishlist;
+        window.openWishlistModal = openWishlistModal;
+        window.addToCartFromWishlist = addToCartFromWishlist;
+        window.addToCart = addToCart;
+        
+        // Product view modal (simplified version)
+        window.openProductView = function(product) {
+            showNotification(`Viewing ${product.name}`);
+            // Full implementation would open the product view modal
+        };
+        
+        // Image gallery (simplified version)
+        window.openImageGallery = function(images) {
+            showNotification('Image gallery opened');
+            // Full implementation would open the image gallery
+        };
     </script>
 </body>
 </html>
